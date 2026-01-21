@@ -315,7 +315,9 @@
                 category: 'bar',
                 description: 'Grouped bar chart comparison',
                 htmlFile: 'bar_chart.html',
-                codeFile: 'bar_chart.py.txt'
+                codeFile: 'bar_chart.py.txt',
+                    preview: 'bar_chart.png'
+
             },
             {
                 id: 'area-chart',
@@ -398,25 +400,31 @@
                 ? showcases 
                 : showcases.filter(s => s.category === currentCategory);
 
-            grid.innerHTML = filtered.map(showcase => `
-                <div class="showcase-card rounded-xl overflow-hidden fade-in" onclick="openShowcase('${showcase.id}')">
-                    <div class="h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-                        <i class="fas fa-chart-${getCategoryIcon(showcase.category)} text-6xl text-white opacity-50"></i>
-                    </div>
-                    <div class="p-5">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-lg font-bold">${showcase.title}</h3>
-                            <i class="fas fa-external-link-alt" style="color: var(--accent);"></i>
-                        </div>
-                        <p class="text-sm mb-3" style="color: var(--text-secondary);">${showcase.description}</p>
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs px-3 py-1 rounded-full" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
-                                ${showcase.category.charAt(0).toUpperCase() + showcase.category.slice(1)}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+grid.innerHTML = filtered.map(showcase => `
+    <div class="showcase-card rounded-xl overflow-hidden fade-in" onclick="openShowcase('${showcase.id}')">
+        <div class="h-48 bg-black overflow-hidden">
+            <img 
+                src="assets/${showcase.preview}" 
+                alt="${showcase.title} preview"
+                class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                loading="lazy"
+            />
+        </div>
+        <div class="p-5">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-bold">${showcase.title}</h3>
+                <i class="fas fa-external-link-alt" style="color: var(--accent);"></i>
+            </div>
+            <p class="text-sm mb-3" style="color: var(--text-secondary);">${showcase.description}</p>
+            <div class="flex items-center justify-between">
+                <span class="text-xs px-3 py-1 rounded-full" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                    ${showcase.category.charAt(0).toUpperCase() + showcase.category.slice(1)}
+                </span>
+            </div>
+        </div>
+    </div>
+`).join('');
+
         }
 
         function getCategoryIcon(category) {
