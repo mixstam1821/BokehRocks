@@ -196,6 +196,22 @@
                 <button onclick="filterCategory('pie'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="pie">
                     <i class="fas fa-pie mr-3"></i>Pie Plot
                 </button>
+                <button onclick="filterCategory('chord'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="chord">
+                    <i class="fas fa-chord mr-3"></i>Chord Plot
+                </button>
+
+                <button onclick="filterCategory('sankey'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="sankey">
+                    <i class="fas fa-network-wired mr-3"></i>Sankey
+                </button>
+
+                <button onclick="filterCategory('radar'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="radar">
+                    <i class="fas fa-chart-pie mr-3"></i>Radar
+                </button>
+
+                <button onclick="filterCategory('parallel'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="parallel">
+                    <i class="fas fa-project-diagram mr-3"></i>Parallel
+                </button>
+
             </div>
         </div>
     </div>
@@ -233,6 +249,19 @@
                 <button onclick="filterCategory('pie')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="pie">
                     <i class="fas fa-pie mr-3"></i>Pie Plot
                 </button>
+                <button onclick="filterCategory('chord')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="chord">
+                    <i class="fas fa-chord mr-3"></i>Chord Plot
+                </button>
+                <button onclick="filterCategory('sankey')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="sankey">
+                    <i class="fas fa-sankey mr-3"></i>Sankey Plot
+                </button>
+                <button onclick="filterCategory('radar')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="radar">
+                    <i class="fas fa-radar mr-3"></i>Radar Plot
+                </button>
+                <button onclick="filterCategory('parallel')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="parallel">
+                    <i class="fas fa-parallel mr-3"></i>Parallel Plot
+                </button>
+
             </div>
         </aside>
 
@@ -373,7 +402,34 @@
     codeFile: 'pie_plot.py',
     preview: 'pie_chart.png' // put your preview image in assets/
 
-}
+},
+{
+        id: 'sankey-diagram',
+        title: 'Sankey Diagram',
+        category: 'sankey',
+        description: 'Flow diagram showing energy/data movement',
+        htmlFile: 'sankey.html',
+        codeFile: 'sankey.py',
+        preview: 'sankey.png'
+    },
+    {
+        id: 'radar-chart',
+        title: 'Radar Chart',
+        category: 'radar',
+        description: 'Multi-variable radar chart',
+        htmlFile: 'radar.html',
+        codeFile: 'radar.py',
+        preview: 'radar.png'
+    },
+    {
+        id: 'parallel-coords',
+        title: 'Parallel Coordinates',
+        category: 'parallel',
+        description: 'High-dimensional data visualization',
+        htmlFile: 'parallel.html',
+        codeFile: 'parallel.py',
+        preview: 'parallel.png'
+    }
 
         ];
 
@@ -468,7 +524,11 @@ grid.innerHTML = filtered.map(showcase => `
                 heatmap: 'table-cells',
                 geo: 'globe',
                 box: 'box' ,
-                pie: 'pie'
+                pie: 'pie',
+                chord: 'circle-half-stroke',
+                sankey: 'sankey-diagram',
+                radar: 'radar',
+                parallel: 'project-diagram'
 
             };
             return icons[category] || 'line';
