@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bokeh Viewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --accent: #3b82f6;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --accent: #60a5fa;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .theme-toggle {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .split-view {
+            display: flex;
+            height: calc(100vh - 64px);
+        }
+
+        .plot-container {
+            flex: 1;
+            overflow: auto;
+            border-right: 2px solid var(--border-color);
+            background-color: var(--bg-primary);
+        }
+
+        .code-container {
+            width: 45%;
+            overflow: auto;
+            background-color: #282c34;
+        }
+
+        .resizer {
+            width: 5px;
+            cursor: col-resize;
+            background-color: var(--border-color);
+            transition: background-color 0.3s;
+        }
+
+        .resizer:hover {
+            background-color: var(--accent);
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        pre {
+            margin: 0;
+            height: 100%;
+        }
+
+        pre code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 20px !important;
+            display: block;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background-color: rgba(59, 130, 246, 0.8);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .copy-btn:hover {
+            background-color: rgba(59, 130, 246, 1);
+            transform: scale(1.05);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @media (max-width: 768px) {
+            .split-view {
+                flex-direction: column;
+            }
+            
+            .plot-container {
+                flex: 1;
+                border-right: none;
+                border-bottom: 2px solid var(--border-color);
+            }
+            
+            .code-container {
+                width: 100%;
+                height: 50%;
+            }
+            
+            .resizer {
+                width: 100%;
+                height: 5px;
+                cursor: row-resize;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 backdrop-blur-lg bg-opacity-90 border-b" style="background-color: var(--bg-primary); border-color: var(--border-color);">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-chart-line text-2xl gradient-text"></i>
+                    <h1 class="text-xl font-bold gradient-text" id="plot-title">Bokeh Rocks</h1>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button onclick="window.close()" class="px-3 py-2 rounded-md hover:bg-opacity-10 hover:bg-blue-500 transition">
+                        <i class="fas fa-times mr-2"></i>Close
+                    </button>
+                    <button onclick="toggleTheme()" class="theme-toggle px-3 py-2 rounded-full transition">
+                        <i class="fas fa-moon" id="theme-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Split View -->
+    <div class="split-view">
+        <!-- Plot Container -->
+        <div class="plot-container" id="plot-container">
+            <iframe id="plot-frame" src=""></iframe>
+        </div>
+
+        <!-- Resizer -->
+        <div class="resizer" id="resizer"></div>
+
+        <!-- Code Container -->
+        <div class="code-container" style="position: relative;">
+            <button class="copy-btn" onclick="copyCode()">
+                <i class="fas fa-copy mr-2"></i>Copy Code
+            </button>
+            <pre><code class="language-python" id="code-display">Loading code...</code></pre>
+        </div>
+    </div>
+
+    <script>
+        let currentTheme = 'light';
+        let isResizing = false;
+
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const plotTitle = urlParams.get('title') || 'Bokeh Visualization';
+        const htmlFile = urlParams.get('html');
+        const codeFile = urlParams.get('code');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('plot-title').textContent = plotTitle;
+            
+            if (htmlFile) {
+                document.getElementById('plot-frame').src = `assets/${htmlFile}`;
+            }
+            
+            if (codeFile) {
+                loadCode(codeFile);
+            }
+            
+            setupResizer();
+        });
+
+        // Theme Toggle
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            document.getElementById('theme-icon').className = currentTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        }
+
+        // Load Python Code
+        async function loadCode(filename) {
+            try {
+                const response = await fetch(`assets/${filename}`);
+                const code = await response.text();
+                const codeElement = document.getElementById('code-display');
+                codeElement.textContent = code;
+                hljs.highlightElement(codeElement);
+            } catch (error) {
+                console.error('Error loading code:', error);
+                document.getElementById('code-display').textContent = getSampleCode();
+                hljs.highlightElement(document.getElementById('code-display'));
+            }
+        }
+
+        // Copy Code to Clipboard
+        function copyCode() {
+            const code = document.getElementById('code-display').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check mr-2"></i>Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+
+        // Resizer Functionality
+        function setupResizer() {
+            const resizer = document.getElementById('resizer');
+            const plotContainer = document.getElementById('plot-container');
+            const codeContainer = document.querySelector('.code-container');
+
+            resizer.addEventListener('mousedown', (e) => {
+                isResizing = true;
+                document.addEventListener('mousemove', resize);
+                document.addEventListener('mouseup', stopResize);
+            });
+
+            function resize(e) {
+                if (!isResizing) return;
+                
+                const containerWidth = window.innerWidth;
+                const newPlotWidth = (e.clientX / containerWidth) * 100;
+                
+                if (newPlotWidth > 20 && newPlotWidth < 80) {
+                    plotContainer.style.flex = `0 0 ${newPlotWidth}%`;
+                    codeContainer.style.width = `${100 - newPlotWidth}%`;
+                }
+            }
+
+            function stopResize() {
+                isResizing = false;
+                document.removeEventListener('mousemove', resize);
+                document.removeEventListener('mouseup', stopResize);
+            }
+        }
+
+        // Sample code if file not found
+        function getSampleCode() {
+            return `from bokeh.plotting import figure, show, output_file
+from bokeh.models import HoverTool
+
+# Prepare sample data
+x = [1, 2, 3, 4, 5]
+y = [6, 7, 2, 4, 5]
+
+# Create a new plot
+p = figure(
+    title="Simple Line Chart",
+    x_axis_label='X',
+    y_axis_label='Y',
+    width=800,
+    height=400
+)
+
+# Add a line renderer
+p.line(x, y, legend_label="Temp.", line_width=2, color='navy')
+
+# Add circle markers
+p.circle(x, y, size=8, color='navy', alpha=0.5)
+
+# Add hover tool
+hover = HoverTool(tooltips=[("X", "@x"), ("Y", "@y")])
+p.add_tools(hover)
+
+# Save to HTML file
+output_file("basic_line.html")
+
+# Show the plot
+show(p)`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bokeh Rocks - Interactive Visualization Gallery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --card-hover: #f1f5f9;
+            --accent: #3b82f6;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --card-hover: #334155;
+            --accent: #60a5fa;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .category-item {
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .category-item.active {
+            color: var(--accent);
+            border-left-color: var(--accent);
+            background-color: rgba(59, 130, 246, 0.1);
+            font-weight: 600;
+        }
+
+        .showcase-card {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .showcase-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            background-color: var(--card-hover);
+        }
+
+        .sidebar {
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+        }
+
+        .theme-toggle {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Mobile menu styles */
+        .mobile-menu {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            width: 280px;
+            height: calc(100vh - 64px);
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 40;
+            overflow-y: auto;
+        }
+
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+
+        .mobile-overlay {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 64px);
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            z-index: 30;
+        }
+
+        .mobile-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @media (min-width: 1024px) {
+            .mobile-menu,
+            .mobile-overlay {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 backdrop-blur-lg bg-opacity-90" style="background-color: var(--bg-primary); border-bottom: 1px solid var(--border-color);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <!-- Mobile Menu Toggle -->
+                    <button onclick="toggleMobileMenu()" class="lg:hidden mr-2 p-2 rounded-md hover:bg-opacity-10 hover:bg-blue-500 transition">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <i class="fas fa-chart-line text-3xl gradient-text"></i>
+                    <h1 class="text-2xl font-bold gradient-text">Bokeh Rocks</h1>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+                    <button onclick="showPage('gallery')" class="nav-link px-3 py-2 rounded-md hover:bg-opacity-10 hover:bg-blue-500 transition">
+                        <i class="fas fa-home mr-2"></i>Gallery
+                    </button>
+                    <button onclick="showPage('about')" class="nav-link px-3 py-2 rounded-md hover:bg-opacity-10 hover:bg-blue-500 transition">
+                        <i class="fas fa-user mr-2"></i>About
+                    </button>
+                    <a href="https://github.com/yourusername/bokeh-rocks" target="_blank" class="px-3 py-2 rounded-md hover:bg-opacity-10 hover:bg-blue-500 transition">
+                        <i class="fab fa-github text-xl"></i>
+                    </a>
+                    <button onclick="toggleTheme()" class="theme-toggle px-3 py-2 rounded-full transition">
+                        <i class="fas fa-moon" id="theme-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobile-overlay" onclick="toggleMobileMenu()"></div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu lg:hidden" id="mobile-menu">
+        <div class="p-6">
+            <h2 class="text-lg font-bold mb-4" style="color: var(--text-primary);">Chart Types</h2>
+            <div class="space-y-2">
+                <button onclick="filterCategory('all'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="all">
+                    <i class="fas fa-th mr-3"></i>All Charts
+                </button>
+                <button onclick="filterCategory('line'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="line">
+                    <i class="fas fa-chart-line mr-3"></i>Line
+                </button>
+                <button onclick="filterCategory('bar'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="bar">
+                    <i class="fas fa-chart-bar mr-3"></i>Bar
+                </button>
+                <button onclick="filterCategory('scatter'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="scatter">
+                    <i class="fas fa-braille mr-3"></i>Scatter
+                </button>
+                <button onclick="filterCategory('area'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="area">
+                    <i class="fas fa-chart-area mr-3"></i>Area
+                </button>
+                <button onclick="filterCategory('heatmap'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="heatmap">
+                    <i class="fas fa-th mr-3"></i>Heatmap
+                </button>
+                <button onclick="filterCategory('geo'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="geo">
+                    <i class="fas fa-map mr-3"></i>Geographic
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex">
+        <!-- Desktop Sidebar -->
+        <aside id="sidebar" class="sidebar w-64 min-h-screen p-6 hidden lg:block sticky top-16 h-screen overflow-y-auto">
+            <h2 class="text-lg font-bold mb-4" style="color: var(--text-primary);">Chart Types</h2>
+            <div class="space-y-2">
+                <button onclick="filterCategory('all')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="all">
+                    <i class="fas fa-th mr-3"></i>All Charts
+                </button>
+                <button onclick="filterCategory('line')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="line">
+                    <i class="fas fa-chart-line mr-3"></i>Line
+                </button>
+                <button onclick="filterCategory('bar')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="bar">
+                    <i class="fas fa-chart-bar mr-3"></i>Bar
+                </button>
+                <button onclick="filterCategory('scatter')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="scatter">
+                    <i class="fas fa-braille mr-3"></i>Scatter
+                </button>
+                <button onclick="filterCategory('area')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="area">
+                    <i class="fas fa-chart-area mr-3"></i>Area
+                </button>
+                <button onclick="filterCategory('heatmap')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="heatmap">
+                    <i class="fas fa-th mr-3"></i>Heatmap
+                </button>
+                <button onclick="filterCategory('geo')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="geo">
+                    <i class="fas fa-map mr-3"></i>Geographic
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-6">
+            <!-- Gallery Page -->
+            <div id="gallery-page">
+                <!-- Header -->
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold mb-2">Explore Bokeh Visualizations</h2>
+                    <p style="color: var(--text-secondary);">Interactive and beautiful data visualizations powered by Bokeh</p>
+                </div>
+
+                <!-- Showcase Grid -->
+                <div id="showcase-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <!-- Cards will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- About Page -->
+            <div id="about-page" class="hidden max-w-4xl mx-auto">
+                <div class="mb-8">
+                    <h2 class="text-4xl font-bold mb-4 gradient-text">About Me</h2>
+                </div>
+                
+                <div class="showcase-card rounded-xl p-8 mb-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold mr-6">
+                            JD
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-1">John Doe</h3>
+                            <p style="color: var(--text-secondary);">Data Visualization Enthusiast</p>
+                        </div>
+                    </div>
+                    
+                    <div class="prose max-w-none" style="color: var(--text-primary);">
+                        <p class="mb-4">
+                            Hi! I'm a passionate data scientist and visualization developer who loves creating 
+                            beautiful and interactive visualizations using Bokeh. This gallery showcases various 
+                            examples of what's possible with this amazing Python library.
+                        </p>
+                        
+                        <h4 class="text-xl font-bold mb-3 mt-6">What I Do</h4>
+                        <ul class="list-disc list-inside space-y-2 mb-4" style="color: var(--text-secondary);">
+                            <li>Create interactive data visualizations</li>
+                            <li>Develop data analysis tools and dashboards</li>
+                            <li>Share knowledge about data visualization best practices</li>
+                            <li>Contribute to open-source data science projects</li>
+                        </ul>
+                        
+                        <h4 class="text-xl font-bold mb-3 mt-6">Connect With Me</h4>
+                        <div class="flex space-x-4">
+                            <a href="https://github.com/yourusername" target="_blank" class="px-4 py-2 rounded-lg transition" style="background-color: var(--bg-secondary);">
+                                <i class="fab fa-github mr-2"></i>GitHub
+                            </a>
+                            <a href="https://linkedin.com/in/yourusername" target="_blank" class="px-4 py-2 rounded-lg transition" style="background-color: var(--bg-secondary);">
+                                <i class="fab fa-linkedin mr-2"></i>LinkedIn
+                            </a>
+                            <a href="mailto:your.email@example.com" class="px-4 py-2 rounded-lg transition" style="background-color: var(--bg-secondary);">
+                                <i class="fas fa-envelope mr-2"></i>Email
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Sample data - Replace with your actual Bokeh plots
+        const showcases = [
+            {
+                id: 'basic-line',
+                title: 'Basic Line Chart',
+                category: 'line',
+                description: 'Simple line chart with multiple series',
+                htmlFile: 'basic_line.html',
+                codeFile: 'basic_line.py'
+            },
+            {
+                id: 'scatter-plot',
+                title: 'Scatter Plot',
+                category: 'scatter',
+                description: 'Interactive scatter plot with tooltips',
+                htmlFile: 'scatter_plot.html',
+                codeFile: 'scatter_plot.py'
+            },
+            {
+                id: 'bar-chart',
+                title: 'Bar Chart',
+                category: 'bar',
+                description: 'Grouped bar chart comparison',
+                htmlFile: 'bar_chart.html',
+                codeFile: 'bar_chart.py.txt'
+            },
+            {
+                id: 'area-chart',
+                title: 'Stacked Area Chart',
+                category: 'area',
+                description: 'Area chart showing trends over time',
+                htmlFile: 'area_chart.html',
+                codeFile: 'area_chart.py'
+            },
+            {
+                id: 'heatmap',
+                title: 'Interactive Heatmap',
+                category: 'heatmap',
+                description: 'Correlation heatmap with color scale',
+                htmlFile: 'heatmap.html',
+                codeFile: 'heatmap.py'
+            },
+            {
+                id: 'geo-map',
+                title: 'Geographic Map',
+                category: 'geo',
+                description: 'World map with data visualization',
+                htmlFile: 'geo_map.html',
+                codeFile: 'geo_map.py'
+            }
+        ];
+
+        let currentTheme = 'light';
+        let currentCategory = 'all';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderShowcases();
+            updateCategoryButtons();
+        });
+
+        // Theme Toggle
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            document.getElementById('theme-icon').className = currentTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        }
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const overlay = document.getElementById('mobile-overlay');
+            menu.classList.toggle('open');
+            overlay.classList.toggle('open');
+        }
+
+        // Page Navigation
+        function showPage(page) {
+            document.getElementById('gallery-page').classList.toggle('hidden', page !== 'gallery');
+            document.getElementById('about-page').classList.toggle('hidden', page !== 'about');
+        }
+
+        // Filter by Category
+        function filterCategory(category) {
+            currentCategory = category;
+            renderShowcases();
+            updateCategoryButtons();
+        }
+
+        function updateCategoryButtons() {
+            document.querySelectorAll('.category-item').forEach(btn => {
+                const btnCategory = btn.getAttribute('data-category');
+                if (btnCategory === currentCategory) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Render Showcases
+        function renderShowcases() {
+            const grid = document.getElementById('showcase-grid');
+            const filtered = currentCategory === 'all' 
+                ? showcases 
+                : showcases.filter(s => s.category === currentCategory);
+
+            grid.innerHTML = filtered.map(showcase => `
+                <div class="showcase-card rounded-xl overflow-hidden fade-in" onclick="openShowcase('${showcase.id}')">
+                    <div class="h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                        <i class="fas fa-chart-${getCategoryIcon(showcase.category)} text-6xl text-white opacity-50"></i>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold">${showcase.title}</h3>
+                            <i class="fas fa-external-link-alt" style="color: var(--accent);"></i>
+                        </div>
+                        <p class="text-sm mb-3" style="color: var(--text-secondary);">${showcase.description}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs px-3 py-1 rounded-full" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
+                                ${showcase.category.charAt(0).toUpperCase() + showcase.category.slice(1)}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                line: 'line',
+                bar: 'bar',
+                scatter: 'scatter',
+                area: 'area',
+                heatmap: 'table-cells',
+                geo: 'globe'
+            };
+            return icons[category] || 'line';
+        }
+
+        // Open Showcase in New Tab
+        function openShowcase(id) {
+            const showcase = showcases.find(s => s.id === id);
+            if (showcase) {
+                // Create the viewer URL with parameters
+                const viewerUrl = `viewer.html?id=${id}&title=${encodeURIComponent(showcase.title)}&html=${showcase.htmlFile}&code=${showcase.codeFile}`;
+                window.open(viewerUrl, '_blank');
+            }
+        }
+    </script>
+</body>
+</html>
