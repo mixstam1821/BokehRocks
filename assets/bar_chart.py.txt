@@ -1,0 +1,32 @@
+import numpy as np
+from bokeh.plotting import figure, output_file, save
+from bokeh.models import ColumnDataSource, HoverTool, CustomJS
+from bokeh.io import export_png
+
+source = ColumnDataSource(dict(
+    x=["A", "B", "C", "D"],
+    y=[10, 15, 7, 12]
+))
+
+hover_cb = CustomJS(code="""
+console.log("Hovered bar index:", cb_data.index['1d'].indices);
+""")
+
+p = figure(
+    x_range=source.data["x"],
+    title="Bar Chart",
+    tools="pan,wheel_zoom,reset"
+)
+
+bars = p.vbar(x="x", top="y", width=0.6, source=source)
+
+p.add_tools(HoverTool(
+    tooltips=[("Category", "@x"), ("Value", "@y")],
+    callback=hover_cb,
+    renderers=[bars]
+))
+
+output_file("bar_chart.html")
+save(p)
+export_png(p, filename="bar_chart.png")
+
