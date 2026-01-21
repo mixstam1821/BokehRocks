@@ -193,6 +193,9 @@
                 <button onclick="filterCategory('box'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="box">
                     <i class="fas fa-box mr-3"></i>Box Plot
                 </button>
+                <button onclick="filterCategory('pie'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="pie">
+                    <i class="fas fa-pie mr-3"></i>Box Plot
+                </button>
             </div>
         </div>
     </div>
@@ -226,6 +229,9 @@
                 </button>
                 <button onclick="filterCategory('box')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="box">
                     <i class="fas fa-box mr-3"></i>Box Plot
+                </button>
+                <button onclick="filterCategory('pie')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="pie">
+                    <i class="fas fa-pie mr-3"></i>Box Plot
                 </button>
             </div>
         </aside>
@@ -357,6 +363,14 @@
     htmlFile: 'box_plot.html',
     codeFile: 'box_plot.py',
     preview: 'box_plot.png' // put your preview image in assets/
+},
+{
+    id: 'pie-plot',
+    title: 'Pie Plot',
+    category: 'pie',
+    description: 'Interactive pie chart with labels',
+    htmlFile: 'pie_chart.html',
+    codeFile: 'pie_plot.py'
 }
 
         ];
@@ -451,7 +465,8 @@ grid.innerHTML = filtered.map(showcase => `
                 area: 'area',
                 heatmap: 'table-cells',
                 geo: 'globe',
-                box: 'box' 
+                box: 'box' ,
+                pie: 'pie'
 
             };
             return icons[category] || 'line';
