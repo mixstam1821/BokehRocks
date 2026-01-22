@@ -1380,3 +1380,187 @@ def plot_rounded_annular_wedges(
     return p
 
 
+import pandas as pd
+import numpy as np
+from bokeh.plotting import figure, show
+from bokeh.models import ColumnDataSource, Whisker, HoverTool
+from bokeh.transform import factor_cmap
+from bokeh.palettes import Category10, Turbo256
+
+def fboxplot_basic(df, xcol, ycol, group_col=None, tth=1,
+                   title="Boxplot", palette=None,
+                   width=800, height=500,
+                   bgc=None, sh=1, show_legend=True):
+    """
+    Create a simple Bokeh boxplot from a DataFrame.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input data containing category and numeric columns.
+    xcol : str
+        Name of the categorical column (x-axis).
+    ycol : str
+        Name of the numeric column (y-axis).
+    group_col : str, optional
+        Name of grouping column (e.g., 'Continent'). If provided, will color by group.
+    tth : int
+        Theme type (1=dark/orange, 0=light/blue).
+    title : str
+        Plot title.
+    palette : dict or list
+        If group_col provided: dict mapping group names to colors.
+        Otherwise: list of colors for each category.
+    width, height : int
+        Figure size.
+    bgc : str
+        Background color.
+    sh : int
+        Whether to display the figure with show().
+    show_legend : bool
+        Whether to display the legend (default True).
+    """
+
+    # --- Prep ---
+    if group_col is not None:
+        d = df[[xcol, ycol, group_col]].dropna().rename(columns={xcol: "x", ycol: "y", group_col: "group"})
+        # Create composite key for x-axis (station + group)
+        d['x_group'] = d['x'].astype(str) + ' (' + d['group'].astype(str) + ')'
+        cats = list(d["x_group"].unique())
+    else:
+        d = df[[xcol, ycol]].dropna().rename(columns={xcol: "x", ycol: "y"})
+        d['x_group'] = d['x']
+        cats = list(d["x"].unique())
+
+    # --- Compute quartiles and whiskers ---
+    qs = d.groupby("x_group")["y"].quantile([0.25, 0.5, 0.75]).unstack().reset_index()
+    qs.columns = ["x_group", "q1", "q2", "q3"]
+    
+    # Add group info back to qs
+    if group_col is not None:
+        qs = qs.merge(d[['x_group', 'group']].drop_duplicates(), on='x_group', how='left')
+    
+    iqr = qs.q3 - qs.q1
+    qs["upper"] = qs.q3 + 1.5 * iqr
+    qs["lower"] = qs.q1 - 1.5 * iqr
+
+    # Clamp whiskers to actual data
+    mins = d.groupby("x_group")["y"].min()
+    maxs = d.groupby("x_group")["y"].max()
+    qs["upper"] = np.minimum(qs["upper"], qs["x_group"].map(maxs))
+    qs["lower"] = np.maximum(qs["lower"], qs["x_group"].map(mins))
+
+    # --- Outliers ---
+    merged = d.merge(qs[["x_group", "lower", "upper"]], on="x_group", how="left")
+    outliers = merged[~merged.y.between(merged.lower, merged.upper)]
+
+    # --- Palette ---
+    if group_col is not None and palette is not None:
+        # Use provided palette dict for groups
+        qs['color'] = qs['group'].map(palette)
+    else:
+        n = len(cats)
+        if palette is None:
+            palette = [Turbo256[i] for i in np.linspace(0, 255, n, dtype=int)]
+        elif isinstance(palette, str) and palette == "Category10":
+            palette = Category10[n] if n <= 10 else [Category10[10][i % 10] for i in range(n)]
+        qs['color'] = [palette[i % len(palette)] for i in range(len(qs))]
+
+    # --- Sources ---
+    src = ColumnDataSource(qs)
+    src_out = ColumnDataSource(outliers)
+
+    # --- Figure ---
+    p = figure(
+        x_range=cats, width=width, height=height,
+        title=title, background_fill_color=bgc,
+        y_axis_label=ycol
+    )
+    
+    if tth == 1:
+        llc = 'white'
+    else:
+        llc = 'black'
+    
+    # --- Whiskers ---
+    whisker = Whisker(base="x_group", upper="upper", lower="lower", source=src, line_color=llc)
+    whisker.upper_head.size = whisker.lower_head.size = 12
+    whisker.upper_head.line_color = whisker.lower_head.line_color = llc
+    p.add_layout(whisker)
+
+    # --- Boxes ---
+    if show_legend and group_col is not None:
+        r1 = p.vbar(x="x_group", width=0.7, top="q3", bottom="q2",
+                    source=src, fill_color='color', line_color=llc,
+                    legend_field="group")
+        r2 = p.vbar(x="x_group", width=0.7, top="q2", bottom="q1",
+                    source=src, fill_color='color', line_color=llc,
+                    legend_field="group")
+    else:
+        r1 = p.vbar(x="x_group", width=0.7, top="q3", bottom="q2",
+                    source=src, fill_color='color', line_color=llc)
+        r2 = p.vbar(x="x_group", width=0.7, top="q2", bottom="q1",
+                    source=src, fill_color='color', line_color=llc)
+
+    # Median line
+    p.segment(x0="x_group", y0="q2", x1="x_group", y1="q2",
+              line_color=llc, line_width=3, source=src)
+
+    # --- Outliers ---
+    if not outliers.empty:
+        p.scatter(x="x_group", y="y", source=src_out, size=6, color="grey", alpha=0.8)
+
+    # --- Hover ---
+    hover_template = """
+        <b>Category:</b> @x_group <br>
+        <b>Q1:</b> @q1{0.0} <br>
+        <b>Median:</b> @q2{0.0} <br>
+        <b>Q3:</b> @q3{0.0} <br>
+        <b>Lower:</b> @lower{0.0} <br>
+        <b>Upper:</b> @upper{0.0}
+    """
+    if group_col is not None:
+        hover_template = """
+        <b>Group:</b> @group <br>
+        """ + hover_template
+    
+    p.add_tools(HoverTool(
+        tooltips=hovfun(hover_template),
+        show_arrow=False, 
+        point_policy="follow_mouse",
+        renderers=[r1, r2]
+    ))
+    add_extras(p, tth=tth, cross=0)
+    # --- Legend configuration ---
+    if show_legend and group_col is not None:
+        # p.legend.location = "center_right"
+        p.legend.click_policy = "none"
+
+
+    # --- Style tweaks ---
+    p.xaxis.major_label_orientation = 0.8  # Rotate labels for readability
+    
+    if tth == 1:
+        if bgc is None:
+            bgc = "#343838"
+        p.styles = {
+            'margin-top': '0px', 'margin-left': '0px', 'border-radius': '10px',
+            'box-shadow': '0 18px 20px rgba(243, 192, 97, 0.2)', 'padding': '5px',
+            'background-color': bgc, 'border': '1.5px solid orange'
+        }
+    else:
+        if bgc is None:
+            bgc = "white"
+        p.styles = {
+            'margin-top': '0px', 'margin-left': '0px', 'border-radius': '10px',
+            'box-shadow': '0 18px 20px rgba(165, 221, 253, 0.2)', 'padding': '5px',
+            'background-color': bgc, 'border': '1.5px solid deepskyblue'
+        }
+    
+    if sh == 1:
+        show(p)
+    
+    return p
+
+
+
