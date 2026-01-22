@@ -3185,3 +3185,684 @@ class Gauge:
 
 
 
+
+
+from bokeh.plotting import figure, show, output_file
+from bokeh.models import Label, GlobalInlineStyleSheet
+from bokeh.layouts import row
+import numpy as np
+
+def get_dark_stylesheet():
+    """Create a new dark theme stylesheet instance."""
+    return GlobalInlineStyleSheet(css=""" 
+        html, body, .bk, .bk-root {
+            background-color: #343838; 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            color: white; 
+            font-family: 'Consolas', 'Courier New', monospace; 
+        } 
+        .bk { color: white; } 
+        .bk-input, .bk-btn, .bk-select, .bk-slider-title, .bk-headers, 
+        .bk-label, .bk-title, .bk-legend, .bk-axis-label { 
+            color: white !important; 
+        } 
+        .bk-input::placeholder { color: #aaaaaa !important; } 
+    """)
+
+def get_light_stylesheet():
+    """Create a new light theme stylesheet instance."""
+    return GlobalInlineStyleSheet(css=""" 
+        html, body, .bk, .bk-root {
+            background-color: #FDFBD4; 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            color: black; 
+            font-family: 'Consolas', 'Courier New', monospace; 
+        } 
+        .bk { color: black; } 
+        .bk-input, .bk-btn, .bk-select, .bk-slider-title, .bk-headers, 
+        .bk-label, .bk-title, .bk-legend, .bk-axis-label { 
+            color: black !important; 
+        } 
+        .bk-input::placeholder { color: #555555 !important; } 
+    """)
+
+def darken_color(hex_color, factor=0.7):
+    """
+    Darken a hex color by a factor.
+    
+    Parameters:
+    -----------
+    hex_color : str
+        Hex color code (e.g., '#ff0000')
+    factor : float
+        Darkening factor (0-1, lower is darker)
+    
+    Returns:
+    --------
+    str : Darkened hex color
+    """
+    hex_color = hex_color.lstrip('#')
+    r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+    r, g, b = int(r * factor), int(g * factor), int(b * factor)
+    return f'#{r:02x}{g:02x}{b:02x}'
+
+def plot_3d_bars(categories, values, colors, labels=None, 
+                 title='3D Bar Chart', xlabel='', ylabel='',
+                 width=800, height=600, bar_width=0.45,
+                 dx=0.35, dy=80, dark_bg=True):
+    """
+    Create a 3D bar chart with simple (non-stacked) bars.
+    
+    Parameters:
+    -----------
+    categories : list
+        Category names for x-axis
+    values : list
+        Values for each category
+    colors : list
+        Colors for each bar
+    labels : list, optional
+        Labels for legend (if None, uses categories)
+    title : str
+        Chart title
+    xlabel, ylabel : str
+        Axis labels
+    width, height : int
+        Figure dimensions
+    bar_width : float
+        Width of bars (0-1)
+    dx, dy : float
+        3D depth offsets (horizontal and vertical)
+    dark_bg : bool
+        Use dark background theme
+    
+    Returns:
+    --------
+    bokeh figure object
+    """
+    # Validate inputs
+    if len(categories) != len(values) != len(colors):
+        raise ValueError("categories, values, and colors must have same length")
+    
+    # Theme colors
+    bg_color = '#343838' if dark_bg else '#FDFBD4'
+    text_color = 'white' if dark_bg else 'black'
+    grid_color = '#404040' if dark_bg else '#e0e0e0'
+    
+    # Calculate y-range with padding
+    max_val = max(values) * 1.5
+    
+    # Create figure
+    p = figure(
+        width=width,
+        height=height,
+        title=title,
+        x_range=(-0.5, len(categories)),
+        y_range=(-10, max_val),
+        toolbar_location='right',
+        tools='pan,wheel_zoom,reset,save',
+        background_fill_color=bg_color,
+        border_fill_color=bg_color,
+    )
+    
+    # Apply styling
+    p.title.text_color = text_color
+    p.title.text_font_size = '18pt'
+    p.title.text_font_style = 'bold'
+    p.xgrid.grid_line_color = grid_color
+    p.ygrid.grid_line_color = grid_color
+    p.xaxis.axis_line_color = text_color
+    p.yaxis.axis_line_color = text_color
+    p.xaxis.major_tick_line_color = text_color
+    p.yaxis.major_tick_line_color = text_color
+    p.xaxis.minor_tick_line_color = None
+    p.yaxis.minor_tick_line_color = None
+    p.xaxis.major_label_text_color = text_color
+    p.yaxis.major_label_text_color = text_color
+    p.xaxis.major_label_text_font_size = '11pt'
+    p.yaxis.major_label_text_font_size = '11pt'
+    p.outline_line_color = None
+    p.xaxis.ticker = list(range(len(categories)))
+    p.xaxis.major_label_overrides = {i: cat for i, cat in enumerate(categories)}
+    
+    if ylabel:
+        p.yaxis.axis_label = ylabel
+        p.yaxis.axis_label_text_color = text_color
+        p.yaxis.axis_label_text_font_size = '12pt'
+    
+    # Draw 3D bars
+    for i, (value, color) in enumerate(zip(values, colors)):
+        x_left = i - bar_width/2
+        x_right = i + bar_width/2
+        
+        # Right side face (darker)
+        right_x = [x_right, x_right + dx, x_right + dx, x_right, x_right]
+        right_y = [0, dy, value + dy, value, 0]
+        p.patch(right_x, right_y, color=darken_color(color, 0.6), 
+                alpha=1.0, line_color='#000000', line_width=1)
+        
+        # Top face (medium shade)
+        top_x = [x_left, x_right, x_right + dx, x_left + dx, x_left]
+        top_y = [value, value, value + dy, value + dy, value]
+        p.patch(top_x, top_y, color=darken_color(color, 0.8), 
+                alpha=1.0, line_color='#000000', line_width=1)
+        
+        # Front face (brightest)
+        p.quad(left=[x_left], right=[x_right], bottom=[0], top=[value],
+               color=color, alpha=1.0, line_color='#000000', line_width=1.5)
+    
+    return p
+
+def plot_3d_stacked_bars(categories, data_dict, colors, labels,
+                         title='3D Stacked Bar Chart', xlabel='', ylabel='',
+                         width=800, height=600, bar_width=0.45,
+                         dx=0.35, dy=80, dark_bg=True):
+    """
+    Create a 3D stacked bar chart.
+    
+    Parameters:
+    -----------
+    categories : list
+        Category names for x-axis
+    data_dict : dict
+        Dictionary mapping categories to lists of values (bottom to top)
+    colors : list
+        Colors for each stack segment
+    labels : list
+        Labels for each stack segment
+    title : str
+        Chart title
+    xlabel, ylabel : str
+        Axis labels
+    width, height : int
+        Figure dimensions
+    bar_width : float
+        Width of bars (0-1)
+    dx, dy : float
+        3D depth offsets (horizontal and vertical)
+    dark_bg : bool
+        Use dark background theme
+    
+    Returns:
+    --------
+    bokeh figure object
+    """
+    # Validate inputs
+    if not all(cat in data_dict for cat in categories):
+        raise ValueError("data_dict must contain all categories")
+    
+    # Theme colors
+    bg_color = '#343838' if dark_bg else '#FDFBD4'
+    text_color = 'white' if dark_bg else 'black'
+    grid_color = '#404040' if dark_bg else '#e0e0e0'
+    
+    # Calculate y-range
+    max_val = max(sum(data_dict[cat]) for cat in categories) * 1.4
+    
+    # Create figure
+    p = figure(
+        width=width,
+        height=height,
+        title=title,
+        x_range=(-0.5, len(categories)),
+        y_range=(-50, max_val),
+        toolbar_location='right',
+        tools='pan,wheel_zoom,reset,save',
+        background_fill_color=bg_color,
+        border_fill_color=bg_color,
+    )
+    
+    # Apply styling
+    p.title.text_color = text_color
+    p.title.text_font_size = '18pt'
+    p.title.text_font_style = 'bold'
+    p.xgrid.grid_line_color = grid_color
+    p.ygrid.grid_line_color = grid_color
+    p.xaxis.axis_line_color = text_color
+    p.yaxis.axis_line_color = text_color
+    p.xaxis.major_tick_line_color = text_color
+    p.yaxis.major_tick_line_color = text_color
+    p.xaxis.minor_tick_line_color = None
+    p.yaxis.minor_tick_line_color = None
+    p.xaxis.major_label_text_color = text_color
+    p.yaxis.major_label_text_color = text_color
+    p.xaxis.major_label_text_font_size = '11pt'
+    p.yaxis.major_label_text_font_size = '11pt'
+    p.outline_line_color = None
+    p.xaxis.ticker = list(range(len(categories)))
+    p.xaxis.major_label_overrides = {i: cat for i, cat in enumerate(categories)}
+    
+    if ylabel:
+        p.yaxis.axis_label = ylabel
+        p.yaxis.axis_label_text_color = text_color
+        p.yaxis.axis_label_text_font_size = '12pt'
+    
+    # Draw 3D stacked bars
+    for i, category in enumerate(categories):
+        cumulative = 0
+        category_data = data_dict[category]
+        
+        for j, (value, color) in enumerate(zip(category_data, colors)):
+            bottom = cumulative
+            top = cumulative + value
+            
+            x_left = i - bar_width/2
+            x_right = i + bar_width/2
+            
+            # Right side face (darker)
+            right_x = [x_right, x_right + dx, x_right + dx, x_right, x_right]
+            right_y = [bottom, bottom + dy, top + dy, top, bottom]
+            p.patch(right_x, right_y, color=darken_color(color, 0.6),
+                    alpha=1.0, line_color='#000000', line_width=1)
+            
+            # Top face (only for top segment)
+            if j == len(category_data) - 1:
+                top_x = [x_left, x_right, x_right + dx, x_left + dx, x_left]
+                top_y = [top, top, top + dy, top + dy, top]
+                p.patch(top_x, top_y, color=darken_color(color, 0.8),
+                        alpha=1.0, line_color='#000000', line_width=1)
+            
+            # Front face (brightest)
+            p.quad(left=[x_left], right=[x_right], bottom=[bottom], top=[top],
+                   color=color, alpha=1.0, line_color='#000000', line_width=1.5)
+            
+            cumulative = top
+    
+    return p
+
+def create_legend(labels, colors, dark_bg=True, height=600):
+    """
+    Create a separate legend figure.
+    
+    Parameters:
+    -----------
+    labels : list
+        Legend labels
+    colors : list
+        Colors corresponding to labels
+    dark_bg : bool
+        Use dark background theme
+    height : int
+        Height of legend figure
+    
+    Returns:
+    --------
+    bokeh figure object
+    """
+    text_color = 'white' if dark_bg else 'black'
+    bg_color = '#343838' if dark_bg else '#FDFBD4'
+    
+    # Calculate required height based on number of items
+    item_height = 40  # Height per legend item
+    total_height = len(labels) * item_height + 60
+    
+    legend_fig = figure(
+        width=250,
+        height=min(total_height, height),
+        toolbar_location=None,
+        background_fill_color=bg_color,
+        border_fill_color=bg_color,
+        outline_line_color=None,
+        x_range=(0, 1),
+        y_range=(0, len(labels) * item_height + 20)
+    )
+    
+    # Remove axes and grid
+    legend_fig.xaxis.visible = False
+    legend_fig.yaxis.visible = False
+    legend_fig.xgrid.visible = False
+    legend_fig.ygrid.visible = False
+    
+    # Add legend items from top to bottom
+    for i, (label, color) in enumerate(zip(labels, colors)):
+        y_pos = (len(labels) - i) * item_height - 10
+        
+        # Colored circle
+        legend_fig.circle(x=[0.1], y=[y_pos], size=18, color=color, 
+                         alpha=1.0, line_color='#000000', line_width=2)
+        
+        # Label text positioned right next to the circle
+        label_obj = Label(
+            x=0.18, y=y_pos - 7,
+            text=label,
+            text_color=text_color,
+            text_font_size='12pt'
+        )
+        legend_fig.add_layout(label_obj)
+    
+    return legend_fig
+
+
+from bokeh.plotting import figure, show, output_file
+from bokeh.models import Label, ColumnDataSource, GlobalInlineStyleSheet
+from bokeh.layouts import row
+import numpy as np
+
+def get_dark_stylesheet():
+    """Create a new dark theme stylesheet instance."""
+    return GlobalInlineStyleSheet(css=""" 
+        html, body, .bk, .bk-root {
+            background-color: #343838; 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            color: white; 
+            font-family: 'Consolas', 'Courier New', monospace; 
+        } 
+        .bk { color: white; } 
+        .bk-input, .bk-btn, .bk-select, .bk-slider-title, .bk-headers, 
+        .bk-label, .bk-title, .bk-legend, .bk-axis-label { 
+            color: white !important; 
+        } 
+        .bk-input::placeholder { color: #aaaaaa !important; } 
+    """)
+
+def get_light_stylesheet():
+    """Create a new light theme stylesheet instance."""
+    return GlobalInlineStyleSheet(css=""" 
+        html, body, .bk, .bk-root {
+            background-color: #FDFBD4; 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            color: black; 
+            font-family: 'Consolas', 'Courier New', monospace; 
+        } 
+        .bk { color: black; } 
+        .bk-input, .bk-btn, .bk-select, .bk-slider-title, .bk-headers, 
+        .bk-label, .bk-title, .bk-legend, .bk-axis-label { 
+            color: black !important; 
+        } 
+        .bk-input::placeholder { color: #555555 !important; } 
+    """)
+
+def darken_color(hex_color, factor=0.7):
+    """Darken a hex color by a factor."""
+    hex_color = hex_color.lstrip('#')
+    r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+    r, g, b = int(r * factor), int(g * factor), int(b * factor)
+    return f'#{r:02x}{g:02x}{b:02x}'
+
+def plot_3d_pie(values, colors, labels, title='3D Pie Chart',
+                width=800, height=700, radius=1.5, depth=0.3,
+                tilt=25, rotation=0, dark_bg=True, explode=None):
+    """
+    Create a PROPERLY WORKING 3D pie chart with correct perspective.
+    """
+    bg_color = '#343838' if dark_bg else '#FDFBD4'
+    text_color = 'white' if dark_bg else 'black'
+    
+    # Normalize values
+    total = sum(values)
+    percentages = [v / total for v in values]
+    
+    if explode is None:
+        explode = [0] * len(values)
+    
+    
+    p = figure(
+        width=width,
+        height=height,
+        title=title,
+        toolbar_location=None,
+        background_fill_color=bg_color,
+        border_fill_color=bg_color,
+        match_aspect=True,
+    )
+    
+    # Styling
+    p.title.text_color = text_color
+    p.title.text_font_size = '16pt'
+    p.xaxis.visible = False
+    p.yaxis.visible = False
+    p.xgrid.visible = False
+    p.ygrid.visible = False
+    p.outline_line_color = None
+    
+    # 3D transformation parameters
+    tilt_rad = np.radians(tilt)
+    
+    # Calculate cumulative angles
+    angles = [p * 360 for p in percentages]
+    start_angles = [0]
+    for angle in angles[:-1]:
+        start_angles.append(start_angles[-1] + angle)
+    
+    # Determine drawing order: back to front based on mid-angle
+    slice_order = []
+    for i in range(len(values)):
+        mid_angle = start_angles[i] + angles[i]/2 + rotation
+        # Use negative sin for proper sorting (back to front)
+        slice_order.append((-np.sin(np.radians(mid_angle)), i))
+    
+    slice_order.sort()
+    
+    for _, i in slice_order:
+        start_deg = start_angles[i] + rotation
+        end_deg = start_deg + angles[i]
+        mid_deg = start_deg + angles[i]/2
+        
+        # Explode offset
+        explode_offset = explode[i] * radius * 0.15
+        explode_x = explode_offset * np.cos(np.radians(mid_deg))
+        explode_y = explode_offset * np.sin(np.radians(mid_deg)) * np.cos(tilt_rad)
+        
+        # Generate points for the slice
+        n_points = max(30, int(angles[i] / 360 * 60))
+        theta = np.linspace(np.radians(start_deg), np.radians(end_deg), n_points)
+        
+        # Top surface coordinates
+        top_x = radius * np.cos(theta) + explode_x
+        top_y = radius * np.sin(theta) * np.cos(tilt_rad) + explode_y
+        
+        # Bottom surface coordinates
+        bottom_x = top_x.copy()
+        bottom_y = top_y - depth
+        
+        edge_color = darken_color(colors[i], 0.6)
+        
+        # Draw the OUTER CURVED EDGE (visible from front)
+        for j in range(len(theta) - 1):
+            angle_mid = (theta[j] + theta[j+1]) / 2
+            # Front-facing check: sin(angle) should be NEGATIVE (towards viewer)
+            if np.sin(angle_mid) < 0:
+                edge_x = [top_x[j], top_x[j+1], bottom_x[j+1], bottom_x[j], top_x[j]]
+                edge_y = [top_y[j], top_y[j+1], bottom_y[j+1], bottom_y[j], top_y[j]]
+                p.patch(edge_x, edge_y, color=edge_color, alpha=1.0, 
+                       line_color='#000000', line_width=0.8)
+        
+        # Add vertical hatching on outer edge
+        hatch_density = max(8, int(angles[i] / 360 * 50))
+        hatch_indices = np.linspace(0, len(theta)-1, hatch_density, dtype=int)
+        
+        for idx in hatch_indices:
+            if idx < len(theta) and np.sin(theta[idx]) < 0:
+                hatch_x = [top_x[idx], bottom_x[idx]]
+                hatch_y = [top_y[idx], bottom_y[idx]]
+                p.line(hatch_x, hatch_y, color='#000000', 
+                      alpha=0.3, line_width=1.0)
+        
+        # Top surface
+        top_wedge_x = np.concatenate([[explode_x], top_x, [explode_x]])
+        top_wedge_y = np.concatenate([[explode_y], top_y, [explode_y]])
+        
+        source = ColumnDataSource(data=dict(
+            x=top_wedge_x,
+            y=top_wedge_y,
+            label=[labels[i]] * len(top_wedge_x),
+            value=[values[i]] * len(top_wedge_x),
+            percentage=[f'{percentages[i]*100:.1f}%'] * len(top_wedge_x)
+        ))
+        
+        p.patch('x', 'y', source=source, color=colors[i], alpha=1.0,
+               line_color='#000000', line_width=1.2,
+               hover_alpha=0.8)
+        
+        # Add percentage label on top surface
+        label_radius = radius * 0.65
+        label_x = label_radius * np.cos(np.radians(mid_deg)) + explode_x
+        label_y = label_radius * np.sin(np.radians(mid_deg)) * np.cos(tilt_rad) + explode_y
+        
+        percentage_text = f'{percentages[i]*100:.1f}%'
+        label_obj = Label(
+            x=label_x, y=label_y,
+            text=percentage_text,
+            text_color='white',
+            text_font_size='14pt',
+            text_align='center',
+            text_baseline='middle',
+            text_font_style='normal'
+        )
+        p.add_layout(label_obj)
+    
+    # Set ranges
+    margin = radius * 1.5
+    p.x_range.start = -margin
+    p.x_range.end = margin
+    p.y_range.start = -margin - depth
+    p.y_range.end = margin
+    
+    return p
+
+def create_legend(labels, colors, dark_bg=True):
+    """Create a separate legend figure."""
+    text_color = 'white' if dark_bg else 'black'
+    bg_color = '#343838' if dark_bg else '#FDFBD4'
+    
+    # Calculate required height
+    item_height = 40
+    total_height = len(labels) * item_height + 60
+    
+    legend_fig = figure(
+        width=250,
+        height=total_height,
+        toolbar_location=None,
+        background_fill_color=bg_color,
+        border_fill_color=bg_color,
+        outline_line_color=None,
+        x_range=(0, 1),
+        y_range=(0, len(labels) * item_height + 20)
+    )
+    
+    legend_fig.xaxis.visible = False
+    legend_fig.yaxis.visible = False
+    legend_fig.xgrid.visible = False
+    legend_fig.ygrid.visible = False
+    
+    for i, (label, color) in enumerate(zip(labels, colors)):
+        y_pos = (len(labels) - i) * item_height - 10
+        
+        # Draw color circle
+        legend_fig.circle(x=[0.1], y=[y_pos], size=18, color=color, 
+                         alpha=1.0, line_color='#000000', line_width=2)
+        
+        # Draw text label
+        label_obj = Label(
+            x=0.18, y=y_pos - 7,
+            text=label,
+            text_color=text_color,
+            text_font_size='12pt',
+            text_baseline='middle'
+        )
+        legend_fig.add_layout(label_obj)
+    
+    return legend_fig
+
+
+
+
+import numpy as np
+from bokeh.plotting import figure, show, output_file
+from bokeh.models import LinearColorMapper, ColorBar, Range1d
+from bokeh.palettes import Viridis256, Plasma256
+
+def plot_surface_bokeh(Z_func, x_range=(-3,3), y_range=(-3,3), n_points=40, cmap=Plasma256,
+                       elev_deg=25, azim_deg=45, title="3D Surface", output_path=None):
+    """
+    High-level function to create a 3D-like surface plot in Bokeh using patches.
+    
+    Parameters:
+    -----------
+    Z_func : callable
+        Function Z(X,Y) -> Z values, takes two 2D arrays
+    x_range, y_range : tuple
+        Min and max of X and Y
+    n_points : int
+        Resolution of grid
+    elev_deg : float
+        Elevation angle in degrees
+    azim_deg : float
+        Azimuth angle in degrees
+    title : str
+        Plot title
+    output_path : str
+        Optional path to save HTML
+    
+    Returns:
+    --------
+    Bokeh figure
+    """
+    # Grid
+    x = np.linspace(x_range[0], x_range[1], n_points)
+    y = np.linspace(y_range[0], y_range[1], n_points)
+    X, Y = np.meshgrid(x, y)
+    Z = Z_func(X, Y)
+    
+    # Isometric-like projection
+    elev_rad = np.radians(elev_deg)
+    azim_rad = np.radians(azim_deg)
+    X_rot = X * np.cos(azim_rad) - Y * np.sin(azim_rad)
+    Y_rot = X * np.sin(azim_rad) + Y * np.cos(azim_rad)
+    X_proj = X_rot
+    Z_proj = Y_rot * np.sin(elev_rad) + Z * np.cos(elev_rad)
+    
+    # Prepare quads
+    quads = []
+    for i in range(n_points - 1):
+        for j in range(n_points - 1):
+            xs = [X_proj[i, j], X_proj[i, j + 1], X_proj[i + 1, j + 1], X_proj[i + 1, j]]
+            ys = [Z_proj[i, j], Z_proj[i, j + 1], Z_proj[i + 1, j + 1], Z_proj[i + 1, j]]
+            avg_z = (Z[i, j] + Z[i, j+1] + Z[i+1, j+1] + Z[i+1, j]) / 4
+            depth = (Y_rot[i, j] + Y_rot[i, j+1] + Y_rot[i+1, j+1] + Y_rot[i+1, j]) / 4
+            quads.append((depth, xs, ys, avg_z))
+    
+    quads.sort(key=lambda q: q[0], reverse=True)
+    quad_xs = [q[1] for q in quads]
+    quad_ys = [q[2] for q in quads]
+    quad_colors = [q[3] for q in quads]
+    
+    # Color mapping
+    z_min, z_max = Z.min(), Z.max()
+    color_mapper = LinearColorMapper(palette=cmap, low=z_min, high=z_max)
+    colors = [cmap[int((val - z_min)/(z_max - z_min)*255)] for val in quad_colors]
+    
+    # Create figure
+    p = figure(width=1200, height=800, title=title, toolbar_location=None)
+    p.patches(xs=quad_xs, ys=quad_ys, fill_color=colors,
+              line_color="#306998", line_alpha=0.3, line_width=0.5, alpha=0.9)
+    
+    # Axis ranges
+    x_min, x_max = min(min(xs) for xs in quad_xs), max(max(xs) for xs in quad_xs)
+    y_min, y_max = min(min(ys) for ys in quad_ys), max(max(ys) for ys in quad_ys)
+    x_pad, y_pad = (x_max - x_min)*0.15, (y_max - y_min)*0.15
+    p.x_range = Range1d(x_min - x_pad, x_max + x_pad)
+    p.y_range = Range1d(y_min - y_pad, y_max + y_pad)
+    
+    # Clean axes
+    p.xaxis.visible = False
+    p.yaxis.visible = False
+    
+    # Color bar
+    color_bar = ColorBar(color_mapper=color_mapper, width=60, location=(0,0), title="Z")
+    p.add_layout(color_bar, "right")
+    
+    # Save HTML if requested
+    if output_path:
+        output_file(output_path)
+    
+    return p
+
