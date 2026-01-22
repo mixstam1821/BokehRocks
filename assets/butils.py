@@ -1564,3 +1564,1624 @@ def fboxplot_basic(df, xcol, ycol, group_col=None, tth=1,
 
 
 
+import numpy as np
+from bokeh.io import show
+from bokeh.models import Label, HoverTool, ColumnDataSource, CustomJS, Div
+from bokeh.plotting import figure
+from bokeh.layouts import column
+
+
+def create_sankey(
+    flows,
+    source_colors=None,
+    target_colors=None,
+    title="Sankey Diagram",
+    width=1500,
+    height=700,
+    flow_alpha=0.4,
+    node_alpha=0.9,
+    interactive=True
+):
+    """
+    Create an interactive Sankey diagram with smooth bezier ribbons and hover effects.
+    
+    Parameters:
+    -----------
+    flows : list of dict
+        Each dict must have 'source', 'target', and 'value' keys.
+    source_colors : dict, optional
+        Colors for source nodes. Auto-generated if None.
+    target_colors : dict, optional
+        Colors for target nodes. Auto-generated if None.
+    title : str
+        Plot title
+    width : int
+        Plot width in pixels
+    height : int
+        Plot height in pixels
+    flow_alpha : float
+        Base transparency of flow ribbons (0-1)
+    node_alpha : float
+        Transparency of nodes (0-1)
+    interactive : bool
+        Enable hover interactions
+    
+    Returns:
+    --------
+    bokeh.layouts.Layout or bokeh.plotting.figure
+        Interactive Sankey diagram with info panel
+    """
+    
+    # Extract unique sources and targets
+    sources = []
+    targets = []
+    for f in flows:
+        if f["source"] not in sources:
+            sources.append(f["source"])
+        if f["target"] not in targets:
+            targets.append(f["target"])
+    
+    # Auto-generate colors if not provided
+    default_source_palette = ["#306998", "#FFD43B", "#9B59B6", "#3498DB", "#E67E22", 
+                             "#2ECC71", "#E74C3C", "#95A5A6", "#F39C12", "#1ABC9C"]
+    default_target_palette = ["#2C3E50", "#16A085", "#C0392B", "#8E44AD", "#D35400",
+                             "#27AE60", "#2980B9", "#7F8C8D", "#F1C40F", "#34495E"]
+    
+    if source_colors is None:
+        source_colors = {s: default_source_palette[i % len(default_source_palette)] 
+                        for i, s in enumerate(sources)}
+    if target_colors is None:
+        target_colors = {t: default_target_palette[i % len(default_target_palette)] 
+                        for i, t in enumerate(targets)}
+    
+    # Calculate totals
+    source_totals = {s: sum(f["value"] for f in flows if f["source"] == s) for s in sources}
+    target_totals = {t: sum(f["value"] for f in flows if f["target"] == t) for t in targets}
+    
+    # Layout parameters
+    left_x, right_x = 0, 100
+    node_width, node_gap = 8, 3
+    total_height, padding_y = 100, 5
+    
+    # Position source nodes
+    source_height_total = sum(source_totals.values())
+    scale = (total_height - 2 * padding_y - (len(sources) - 1) * node_gap) / source_height_total
+    
+    source_nodes = {}
+    current_y = padding_y
+    for s in sources:
+        h = source_totals[s] * scale
+        source_nodes[s] = {"x": left_x, "y": current_y, "height": h, "value": source_totals[s]}
+        current_y += h + node_gap
+    
+    # Position target nodes
+    target_height_total = sum(target_totals.values())
+    scale_t = (total_height - 2 * padding_y - (len(targets) - 1) * node_gap) / target_height_total
+    
+    target_nodes = {}
+    current_y = padding_y
+    for t in targets:
+        h = target_totals[t] * scale_t
+        target_nodes[t] = {"x": right_x - node_width, "y": current_y, "height": h, "value": target_totals[t]}
+        current_y += h + node_gap
+    
+    # Create figure
+    p = figure(
+        width=width, height=height, title=title,
+        x_range=(-30, 130), y_range=(-5, 105),
+        tools="", toolbar_location=None
+    )
+    
+    # Track flow offsets
+    source_offsets = {s: 0 for s in sources}
+    target_offsets = {t: 0 for t in targets}
+    
+    # Store ribbon renderers and sources for interactivity
+    ribbon_renderers = []
+    ribbon_sources = []
+    
+    # Draw flows with SMOOTH BEZIER CURVES
+    for f in flows:
+        src, tgt, value = f["source"], f["target"], f["value"]
+        src_node, tgt_node = source_nodes[src], target_nodes[tgt]
+        
+        src_flow_h = (value / source_totals[src]) * src_node["height"]
+        tgt_flow_h = (value / target_totals[tgt]) * tgt_node["height"]
+        
+        x0 = src_node["x"] + node_width
+        y0_bottom = src_node["y"] + source_offsets[src]
+        y0_top = y0_bottom + src_flow_h
+        
+        x1 = tgt_node["x"]
+        y1_bottom = tgt_node["y"] + target_offsets[tgt]
+        y1_top = y1_bottom + tgt_flow_h
+        
+        source_offsets[src] += src_flow_h
+        target_offsets[tgt] += tgt_flow_h
+        
+        # SMOOTH BEZIER with more points for smoothness
+        t = np.linspace(0, 1, 100)
+        cx0, cx1 = x0 + (x1 - x0) * 0.5, x0 + (x1 - x0) * 0.5
+        
+        # Cubic bezier for x
+        x_path = (1-t)**3 * x0 + 3*(1-t)**2*t * cx0 + 3*(1-t)*t**2 * cx1 + t**3 * x1
+        
+        # Cubic bezier for y (creates smooth S-curve)
+        y_bottom = (1-t)**3 * y0_bottom + 3*(1-t)**2*t * y0_bottom + 3*(1-t)*t**2 * y1_bottom + t**3 * y1_bottom
+        y_top = (1-t)**3 * y0_top + 3*(1-t)**2*t * y0_top + 3*(1-t)*t**2 * y1_top + t**3 * y1_top
+        
+        xs = list(x_path) + list(x_path[::-1])
+        ys = list(y_top) + list(y_bottom[::-1])
+        
+        # Create ColumnDataSource for interactivity
+        source_data = ColumnDataSource(data={
+            'x': [xs],
+            'y': [ys],
+            'source': [src],
+            'target': [tgt],
+            'value': [value],
+            'alpha': [flow_alpha]
+        })
+        
+        ribbon = p.patches(
+            'x', 'y',
+            source=source_data,
+            fill_color=source_colors[src],
+            fill_alpha='alpha',
+            line_color=source_colors[src],
+            line_alpha='alpha',
+            line_width=0.5
+        )
+        
+        ribbon_renderers.append(ribbon)
+        ribbon_sources.append(source_data)
+    
+    # Draw source nodes
+    source_node_renderers = []
+    source_node_sources = []
+    
+    for s in sources:
+        node = source_nodes[s]
+        node_source = ColumnDataSource(data={
+            'left': [node["x"]],
+            'right': [node["x"] + node_width],
+            'bottom': [node["y"]],
+            'top': [node["y"] + node["height"]],
+            'name': [s],
+            'value': [node['value']],
+            'type': ['source']
+        })
+        
+        renderer = p.quad(
+            left='left', right='right', bottom='bottom', top='top',
+            source=node_source,
+            fill_color=source_colors[s],
+            fill_alpha=node_alpha,
+            line_color="white",
+            line_width=2,
+            hover_fill_alpha=1.0
+        )
+        
+        source_node_renderers.append(renderer)
+        source_node_sources.append(node_source)
+        
+        # Add label
+        label = Label(
+            x=node["x"] - 1, y=node["y"] + node["height"] / 2,
+            text=f"{s} ({node['value']})", text_font_size="22pt",
+            text_align="right", text_baseline="middle", text_color="#333"
+        )
+        p.add_layout(label)
+    
+    # Draw target nodes
+    target_node_renderers = []
+    target_node_sources = []
+    
+    for t in targets:
+        node = target_nodes[t]
+        node_source = ColumnDataSource(data={
+            'left': [node["x"]],
+            'right': [node["x"] + node_width],
+            'bottom': [node["y"]],
+            'top': [node["y"] + node["height"]],
+            'name': [t],
+            'value': [node['value']],
+            'type': ['target']
+        })
+        
+        renderer = p.quad(
+            left='left', right='right', bottom='bottom', top='top',
+            source=node_source,
+            fill_color=target_colors[t],
+            fill_alpha=node_alpha,
+            line_color="white",
+            line_width=2,
+            hover_fill_alpha=1.0
+        )
+        
+        target_node_renderers.append(renderer)
+        target_node_sources.append(node_source)
+        
+        # Add label
+        label = Label(
+            x=node["x"] + node_width + 1, y=node["y"] + node["height"] / 2,
+            text=f"{t} ({node['value']})", text_font_size="22pt",
+            text_align="left", text_baseline="middle", text_color="#333"
+        )
+        p.add_layout(label)
+    
+    # Styling
+    p.title.text_font_size = "32pt"
+    p.title.align = "center"
+    p.xaxis.visible = p.yaxis.visible = False
+    p.xgrid.visible = p.ygrid.visible = False
+    p.outline_line_color = None
+    p.background_fill_color = "#FAFAFA"
+    p.border_fill_color = "#FFFFFF"
+    
+    if not interactive:
+        return p
+    
+    # Add interactive info panel
+    info_div = Div(
+        text="""
+        <div style="
+            padding:15px;
+            border:2px solid #333;
+            border-radius:8px;
+            background:#FFF8DC;
+            font-family:'Arial', sans-serif;
+            font-size:14px;
+            color:#333;
+            min-height:80px;
+        ">
+            <b>Hover over flows or nodes to explore</b>
+        </div>
+        """,
+        width=300, margin=(10,10,10,10)
+    )
+    
+    # RIBBON HOVER - highlight specific flow
+    ribbon_hover = HoverTool(
+        renderers=ribbon_renderers,
+        tooltips=None,
+        callback=CustomJS(
+            args=dict(ribbons=ribbon_sources, div=info_div),
+            code="""
+            const r = cb_data.renderer.data_source;
+            const i = cb_data.index.indices[0];
+            if (i == null) return;
+            
+            // Dim all ribbons
+            for (let k = 0; k < ribbons.length; k++) {
+                ribbons[k].data.alpha = [0.08];
+                ribbons[k].change.emit();
+            }
+            
+            // Highlight hovered ribbon
+            r.data.alpha = [0.85];
+            r.change.emit();
+            
+            // Update info panel
+            div.text = `
+            <div style="padding:15px;border:2px solid #333;border-radius:8px;background:#FFF8DC;color:#333;">
+                <div style="font-size:16px;font-weight:bold;margin-bottom:10px;">Flow Details</div>
+                <div style="line-height:1.8;">
+                    <b>From:</b> ${r.data.source[0]}<br>
+                    <b>To:</b> ${r.data.target[0]}<br>
+                    <b>Value:</b> ${r.data.value[0]}
+                </div>
+            </div>`;
+            """
+        )
+    )
+    p.add_tools(ribbon_hover)
+    
+    # SOURCE NODE HOVER - highlight all outgoing flows
+    source_hover = HoverTool(
+        renderers=source_node_renderers,
+        tooltips=None,
+        callback=CustomJS(
+            args=dict(ribbons=ribbon_sources, div=info_div),
+            code="""
+            const i = cb_data.index.indices[0];
+            if (i == null) return;
+            
+            const node_name = cb_data.renderer.data_source.data.name[i];
+            
+            let total = 0;
+            let count = 0;
+            
+            for (let k = 0; k < ribbons.length; k++) {
+                if (ribbons[k].data.source[0] === node_name) {
+                    ribbons[k].data.alpha = [0.8];
+                    total += ribbons[k].data.value[0];
+                    count++;
+                } else {
+                    ribbons[k].data.alpha = [0.08];
+                }
+                ribbons[k].change.emit();
+            }
+            
+            div.text = `
+            <div style="padding:15px;border:2px solid #333;border-radius:8px;background:#FFF8DC;color:#333;">
+                <div style="font-size:16px;font-weight:bold;margin-bottom:10px;">Source Node</div>
+                <div style="line-height:1.8;">
+                    <b>Name:</b> ${node_name}<br>
+                    <b>Total Output:</b> ${total}<br>
+                    <b>Flows:</b> ${count}
+                </div>
+            </div>`;
+            """
+        )
+    )
+    p.add_tools(source_hover)
+    
+    # TARGET NODE HOVER - highlight all incoming flows
+    target_hover = HoverTool(
+        renderers=target_node_renderers,
+        tooltips=None,
+        callback=CustomJS(
+            args=dict(ribbons=ribbon_sources, div=info_div),
+            code="""
+            const i = cb_data.index.indices[0];
+            if (i == null) return;
+            
+            const node_name = cb_data.renderer.data_source.data.name[i];
+            
+            let total = 0;
+            let count = 0;
+            
+            for (let k = 0; k < ribbons.length; k++) {
+                if (ribbons[k].data.target[0] === node_name) {
+                    ribbons[k].data.alpha = [0.8];
+                    total += ribbons[k].data.value[0];
+                    count++;
+                } else {
+                    ribbons[k].data.alpha = [0.08];
+                }
+                ribbons[k].change.emit();
+            }
+            
+            div.text = `
+            <div style="padding:15px;border:2px solid #333;border-radius:8px;background:#FFF8DC;color:#333;">
+                <div style="font-size:16px;font-weight:bold;margin-bottom:10px;">Target Node</div>
+                <div style="line-height:1.8;">
+                    <b>Name:</b> ${node_name}<br>
+                    <b>Total Input:</b> ${total}<br>
+                    <b>Flows:</b> ${count}
+                </div>
+            </div>`;
+            """
+        )
+    )
+    p.add_tools(target_hover)
+    
+    # Reset on mouse leave
+    p.js_on_event('mouseleave', CustomJS(
+        args=dict(ribbons=ribbon_sources, div=info_div, base_alpha=flow_alpha),
+        code="""
+        for (let k = 0; k < ribbons.length; k++) {
+            ribbons[k].data.alpha = [base_alpha];
+            ribbons[k].change.emit();
+        }
+        
+        div.text = `
+        <div style="padding:15px;border:2px solid #333;border-radius:8px;background:#FFF8DC;color:#333;min-height:80px;">
+            <b>Hover over flows or nodes to explore</b>
+        </div>`;
+        """
+    ))
+    
+    return column(p, info_div)
+
+
+
+
+### CONTINUE : MULTI LEVEL SANKEY
+import numpy as np
+from bokeh.io import show
+from bokeh.models import Label, HoverTool, ColumnDataSource, CustomJS, Div, Legend, LegendItem
+from bokeh.plotting import figure
+from bokeh.layouts import column
+
+
+def create_alluvial(
+    flows_data,
+    time_points,
+    categories,
+    colors=None,
+    title="Alluvial Diagram",
+    width=1500,
+    height=800,
+    node_width=0.12,
+    gap=2,
+    flow_alpha=0.5,
+    interactive=True
+):
+    """
+    Create an interactive Alluvial (multi-level Sankey) diagram.
+    
+    Parameters:
+    -----------
+    flows_data : list of list of tuples
+        Each inner list represents flows between consecutive time points.
+        Each tuple: (from_category, to_category, value)
+        Example: [[("A", "B", 10), ("A", "C", 5)], [("B", "C", 8), ...]]
+    time_points : list of str
+        Labels for each time point
+    categories : list of str
+        All unique categories across time points
+    colors : dict, optional
+        Color mapping for categories {category: hex_color}
+    title : str
+        Plot title
+    width : int
+        Plot width in pixels
+    height : int
+        Plot height in pixels
+    node_width : float
+        Width of nodes
+    gap : float
+        Gap between nodes as percentage of total height (0-100)
+    flow_alpha : float
+        Transparency of flows
+    interactive : bool
+        Enable hover interactions
+    
+    Returns:
+    --------
+    bokeh.layouts.Layout or bokeh.plotting.figure
+        Alluvial diagram
+    """
+    
+    # Auto-generate colors if not provided
+    if colors is None:
+        default_palette = ["#306998", "#D62728", "#FFD43B", "#7F7F7F", "#2ECC71", 
+                          "#3498DB", "#E67E22", "#9B59B6", "#1ABC9C", "#F39C12"]
+        colors = {cat: default_palette[i % len(default_palette)] 
+                 for i, cat in enumerate(categories)}
+    
+    # Calculate node heights at each time point (in flow units)
+    node_heights = []
+    for t_idx in range(len(time_points)):
+        heights = {}
+        if t_idx == 0:
+            # First time point: sum outgoing flows
+            for cat in categories:
+                heights[cat] = sum(f[2] for f in flows_data[0] if f[0] == cat)
+        elif t_idx == len(time_points) - 1:
+            # Last time point: sum incoming flows
+            for cat in categories:
+                heights[cat] = sum(f[2] for f in flows_data[-1] if f[1] == cat)
+        else:
+            # Middle time points: sum incoming flows from previous
+            for cat in categories:
+                heights[cat] = sum(f[2] for f in flows_data[t_idx - 1] if f[1] == cat)
+        node_heights.append(heights)
+    
+    # Find max total flow at any time point
+    max_total_flow = 0
+    for t_idx in range(len(time_points)):
+        total = sum(node_heights[t_idx].get(cat, 0) for cat in categories)
+        max_total_flow = max(max_total_flow, total)
+    
+    # Count active categories at each time point for gap calculation
+    num_active_categories = []
+    for t_idx in range(len(time_points)):
+        count = sum(1 for cat in categories if node_heights[t_idx].get(cat, 0) > 0)
+        num_active_categories.append(count)
+    
+    max_active = max(num_active_categories)
+    
+    # Target y-range is 70% of figure height
+    target_y_range = height * 0.7
+    
+    # Calculate gap size in scaled units
+    # gap parameter is percentage, convert to actual units
+    gap_size = target_y_range * (gap / 100.0)
+    total_gap = gap_size * (max_active - 1) if max_active > 1 else 0
+    
+    # Available space for nodes
+    available_for_nodes = target_y_range - total_gap
+    
+    # Scale factor converts flow units to display units
+    scale_factor = available_for_nodes / max_total_flow if max_total_flow > 0 else 1
+    
+    # Calculate x positions evenly spaced
+    x_positions = list(range(len(time_points)))
+    
+    # Calculate node positions in scaled coordinates
+    node_positions = []
+    max_y = 0
+    for t_idx in range(len(time_points)):
+        positions = {}
+        y_cursor = 0
+        for cat in categories:
+            height_flow = node_heights[t_idx].get(cat, 0)
+            height_scaled = height_flow * scale_factor
+            positions[cat] = {
+                "y_start": y_cursor, 
+                "y_end": y_cursor + height_scaled,
+                "value": height_flow  # Store original value
+            }
+            if height_scaled > 0:
+                y_cursor += height_scaled + gap_size
+            else:
+                y_cursor += 0
+        node_positions.append(positions)
+        max_y = max(max_y, y_cursor)
+    
+    # Create figure with proper ranges
+    x_margin = 1
+    y_margin = max_y * 0.15
+    
+    p = figure(
+        width=width,
+        height=height,
+        title=title,
+        x_range=(-x_margin, len(time_points) - 1 + x_margin),
+        y_range=(-y_margin, max_y + y_margin),
+        tools="",
+        toolbar_location=None,
+    )
+    
+    # Style
+    p.title.text_font_size = "20pt"
+    p.title.align = "center"
+    p.xgrid.visible = False
+    p.ygrid.visible = False
+    p.xaxis.visible = False
+    p.yaxis.visible = False
+    p.outline_line_color = None
+    p.background_fill_color = "#FAFAFA"
+    
+    # Store ribbon data for interactivity
+    ribbon_renderers = []
+    ribbon_sources = []
+    
+    # Draw flows between consecutive time points
+    n_points = 100
+    t_param = np.linspace(0, 1, n_points)
+    
+    for t_idx, flows in enumerate(flows_data):
+        x_start = x_positions[t_idx] + node_width / 2
+        x_end = x_positions[t_idx + 1] - node_width / 2
+        
+        # Track current position for stacking
+        source_cursors = {cat: node_positions[t_idx][cat]["y_start"] for cat in categories}
+        target_cursors = {cat: node_positions[t_idx + 1][cat]["y_start"] for cat in categories}
+        
+        for from_cat, to_cat, value in flows:
+            if value == 0:
+                continue
+            
+            # Scale the value for visual display
+            scaled_value = value * scale_factor
+            
+            # Source coordinates
+            y_src_bottom = source_cursors[from_cat]
+            y_src_top = y_src_bottom + scaled_value
+            source_cursors[from_cat] = y_src_top
+            
+            # Target coordinates
+            y_tgt_bottom = target_cursors[to_cat]
+            y_tgt_top = y_tgt_bottom + scaled_value
+            target_cursors[to_cat] = y_tgt_top
+            
+            # Bezier control points
+            cx0 = x_start + (x_end - x_start) / 3
+            cx1 = x_start + 2 * (x_end - x_start) / 3
+            
+            # Top edge bezier
+            x_top = ((1 - t_param) ** 3 * x_start +
+                    3 * (1 - t_param) ** 2 * t_param * cx0 +
+                    3 * (1 - t_param) * t_param ** 2 * cx1 +
+                    t_param ** 3 * x_end)
+            y_top = ((1 - t_param) ** 3 * y_src_top +
+                    3 * (1 - t_param) ** 2 * t_param * y_src_top +
+                    3 * (1 - t_param) * t_param ** 2 * y_tgt_top +
+                    t_param ** 3 * y_tgt_top)
+            
+            # Bottom edge bezier
+            x_bottom = ((1 - t_param) ** 3 * x_start +
+                       3 * (1 - t_param) ** 2 * t_param * cx0 +
+                       3 * (1 - t_param) * t_param ** 2 * cx1 +
+                       t_param ** 3 * x_end)
+            y_bottom = ((1 - t_param) ** 3 * y_src_bottom +
+                       3 * (1 - t_param) ** 2 * t_param * y_src_bottom +
+                       3 * (1 - t_param) * t_param ** 2 * y_tgt_bottom +
+                       t_param ** 3 * y_tgt_bottom)
+            
+            # Create closed polygon
+            xs = list(x_top) + list(x_bottom[::-1])
+            ys = list(y_top) + list(y_bottom[::-1])
+            
+            # Create data source (store ORIGINAL value for display)
+            source_data = ColumnDataSource(data={
+                'x': [xs],
+                'y': [ys],
+                'from': [from_cat],
+                'to': [to_cat],
+                'value': [value],  # Original unscaled value
+                'time_from': [time_points[t_idx]],
+                'time_to': [time_points[t_idx + 1]],
+                'alpha': [flow_alpha]
+            })
+            
+            ribbon = p.patches(
+                'x', 'y',
+                source=source_data,
+                fill_color=colors[from_cat],
+                fill_alpha='alpha',
+                line_color=colors[from_cat],
+                line_alpha='alpha',
+                line_width=0.5
+            )
+            
+            ribbon_renderers.append(ribbon)
+            ribbon_sources.append(source_data)
+    
+    # Draw nodes and collect for legend
+    legend_renderers = {}
+    node_renderers = []
+    node_sources = []
+    
+    for t_idx in range(len(time_points)):
+        x = x_positions[t_idx]
+        for cat in categories:
+            y_start = node_positions[t_idx][cat]["y_start"]
+            y_end = node_positions[t_idx][cat]["y_end"]
+            value_original = node_positions[t_idx][cat]["value"]
+            
+            if y_end > y_start:
+                node_source = ColumnDataSource(data={
+                    'left': [x - node_width / 2],
+                    'right': [x + node_width / 2],
+                    'bottom': [y_start],
+                    'top': [y_end],
+                    'category': [cat],
+                    'time_idx': [t_idx],
+                    'value': [value_original]  # Store original value
+                })
+                
+                renderer = p.quad(
+                    left='left', right='right', bottom='bottom', top='top',
+                    source=node_source,
+                    fill_color=colors[cat],
+                    fill_alpha=0.9,
+                    line_color="white",
+                    line_width=2,
+                    hover_fill_alpha=1.0
+                )
+                
+                node_renderers.append(renderer)
+                node_sources.append(node_source)
+                
+                # Collect for legend (one per category)
+                if cat not in legend_renderers:
+                    legend_renderers[cat] = renderer
+                
+                # Add labels on first and last time points (with original values)
+                if t_idx == 0:
+                    label = Label(
+                        x=x - node_width / 2 - 0.03,
+                        y=(y_start + y_end) / 2,
+                        text=f"{cat} ({int(value_original)})",
+                        text_font_size="11pt",
+                        text_baseline="middle",
+                        text_align="right",
+                        text_color="#333333",
+                    )
+                    p.add_layout(label)
+                elif t_idx == len(time_points) - 1:
+                    label = Label(
+                        x=x + node_width / 2 + 0.03,
+                        y=(y_start + y_end) / 2,
+                        text=f"{cat} ({int(value_original)})",
+                        text_font_size="11pt",
+                        text_baseline="middle",
+                        text_color="#333333",
+                    )
+                    p.add_layout(label)
+    
+    # Add time point labels
+    for t_idx, t in enumerate(time_points):
+        label = Label(
+            x=x_positions[t_idx],
+            y=-y_margin * 0.5,
+            text=t,
+            text_font_size="14pt",
+            text_align="center",
+            text_baseline="top",
+            text_color="#333333",
+            text_font_style="bold",
+        )
+        p.add_layout(label)
+    
+    # Create legend on the right
+    legend_items = [LegendItem(label=cat, renderers=[legend_renderers[cat]]) 
+                   for cat in categories if cat in legend_renderers]
+    legend = Legend(
+        items=legend_items,
+        location="center",
+        label_text_font_size="11pt",
+        glyph_width=20,
+        glyph_height=20,
+        spacing=8,
+        padding=12,
+        background_fill_alpha=0.9,
+        background_fill_color="white",
+        border_line_color="#cccccc",
+    )
+    p.add_layout(legend, "right")
+    
+    if not interactive:
+        return p
+    
+    # Add interactivity
+    info_div = Div(
+        text="""
+        <div style="padding:12px;border:2px solid #333;border-radius:6px;
+                    background:#FFF8DC;font-family:Arial;font-size:13px;color:#333;">
+            <b>Hover over flows or nodes</b>
+        </div>
+        """,
+        width=280, margin=(10,10,10,10)
+    )
+    
+    # Ribbon hover
+    ribbon_hover = HoverTool(
+        renderers=ribbon_renderers,
+        tooltips=None,
+        callback=CustomJS(
+            args=dict(ribbons=ribbon_sources, div=info_div),
+            code="""
+            const i = cb_data.index.indices[0];
+            if (i == null) return;
+            const r = cb_data.renderer.data_source;
+            
+            for (let k = 0; k < ribbons.length; k++) {
+                ribbons[k].data.alpha = [0.05];
+                ribbons[k].change.emit();
+            }
+            
+            r.data.alpha = [0.85];
+            r.change.emit();
+            
+            div.text = `
+            <div style="padding:12px;border:2px solid #333;border-radius:6px;background:#FFF8DC;color:#333;">
+                <b>Flow: ${r.data.time_from[0]} → ${r.data.time_to[0]}</b><br><br>
+                <b>From:</b> ${r.data.from[0]}<br>
+                <b>To:</b> ${r.data.to[0]}<br>
+                <b>Value:</b> ${r.data.value[0]}
+            </div>`;
+            """
+        )
+    )
+    p.add_tools(ribbon_hover)
+    
+    # Node hover
+    node_hover = HoverTool(
+        renderers=node_renderers,
+        tooltips=None,
+        callback=CustomJS(
+            args=dict(ribbons=ribbon_sources, div=info_div, time_points=time_points),
+            code="""
+            const i = cb_data.index.indices[0];
+            if (i == null) return;
+            const node = cb_data.renderer.data_source.data;
+            const cat = node.category[i];
+            const t_idx = node.time_idx[i];
+            
+            let highlighted = 0;
+            for (let k = 0; k < ribbons.length; k++) {
+                const r = ribbons[k].data;
+                if (r.from[0] === cat || r.to[0] === cat) {
+                    ribbons[k].data.alpha = [0.75];
+                    highlighted++;
+                } else {
+                    ribbons[k].data.alpha = [0.05];
+                }
+                ribbons[k].change.emit();
+            }
+            
+            div.text = `
+            <div style="padding:12px;border:2px solid #333;border-radius:6px;background:#FFF8DC;color:#333;">
+                <b>${cat}</b> at <b>${time_points[t_idx]}</b><br><br>
+                <b>Value:</b> ${node.value[i]}<br>
+                <b>Connected flows:</b> ${highlighted}
+            </div>`;
+            """
+        )
+    )
+    p.add_tools(node_hover)
+    
+    # Reset on mouse leave
+    p.js_on_event('mouseleave', CustomJS(
+        args=dict(ribbons=ribbon_sources, div=info_div, base_alpha=flow_alpha),
+        code="""
+        for (let k = 0; k < ribbons.length; k++) {
+            ribbons[k].data.alpha = [base_alpha];
+            ribbons[k].change.emit();
+        }
+        div.text = `<div style="padding:12px;border:2px solid #333;border-radius:6px;
+                     background:#FFF8DC;color:#333;"><b>Hover over flows or nodes</b></div>`;
+        """
+    ))
+    
+    return column(p, info_div)
+
+
+
+
+
+
+
+import numpy as np
+from bokeh.plotting import figure, show, output_file
+from bokeh.models import HoverTool, ColumnDataSource, CustomJS, GlobalInlineStyleSheet
+from bokeh.palettes import Category20
+from bokeh.layouts import column, row
+from bokeh.models import Div
+
+def get_dark_stylesheet():
+    """Create a new dark theme stylesheet instance."""
+    return GlobalInlineStyleSheet(css="""
+        html, body, .bk, .bk-root {
+            background-color: #343838; 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            color: white; 
+            font-family: 'Consolas', 'Courier New', monospace; 
+        }
+        .bk { color: white; }
+        .bk-input, .bk-btn, .bk-select, .bk-slider-title, .bk-headers,
+        .bk-label, .bk-title, .bk-legend, .bk-axis-label {
+            color: white !important; 
+        }
+        .bk-input::placeholder { color: #aaaaaa !important; }
+    """)
+
+def get_light_stylesheet():
+    """Create a new light theme stylesheet instance."""
+    return GlobalInlineStyleSheet(css="""
+        html, body, .bk, .bk-root {
+            background-color: #f3f3f3; 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            color: black; 
+            font-family: 'Consolas', 'Courier New', monospace; 
+        }
+        .bk { color: black; }
+        .bk-input, .bk-btn, .bk-select, .bk-slider-title, .bk-headers,
+        .bk-label, .bk-title, .bk-legend, .bk-axis-label {
+            color: black !important; 
+        }
+        .bk-input::placeholder { color: #555555 !important; }
+    """)
+
+def create_chord_diagram(matrix, labels, colors=None, title="Chord Diagram", width=800, height=800, dark_mode=False):
+    """
+    Create an interactive chord diagram using Bokeh.
+    
+    Parameters:
+    -----------
+    matrix : 2D array-like
+        Square matrix representing connections between nodes
+    labels : list of str
+        Labels for each node
+    colors : list of str, optional
+        Colors for each node (hex format)
+    title : str
+        Title of the diagram
+    width : int
+        Width of the plot
+    height : int
+        Height of the plot
+    dark_mode : bool
+        Enable dark theme
+    
+    Returns:
+    --------
+    bokeh.layouts.Layout
+        Bokeh layout containing the chord diagram
+    """
+    n = len(labels)
+    matrix = np.array(matrix)
+    
+    # Theme colors
+    if dark_mode:
+        bg_color = "#343838"
+        text_color = "white"
+        border_color = "#666"
+        info_bg = "#2a2a2a"
+        line_color = "#555"
+    else:
+        bg_color = "#f3f3f3"
+        text_color = "black"
+        border_color = "#333"
+        info_bg = "#FFF8DC"
+        line_color = "#CCC"
+    
+    # Generate colors if not provided
+    if colors is None:
+        colors = Category20[20][:n] if n <= 20 else Category20[20] * (n // 20 + 1)
+    
+    # Calculate outgoing total for each node
+    outgoing = matrix.sum(axis=1)
+    total_flow = outgoing.sum()
+    
+    # Create arc positions based on outgoing flow
+    gap = 0.03
+    total_gap = gap * n
+    arc_positions = []
+    current_pos = 0
+    hover_state = ColumnDataSource(data=dict(active=["none"]))
+
+    for i in range(n):
+        arc_length = (outgoing[i] / total_flow) * (2 * np.pi - total_gap) if total_flow > 0 else 0
+        arc_positions.append({
+            'start': current_pos,
+            'end': current_pos + arc_length,
+            'mid': current_pos + arc_length / 2,
+            'label': labels[i],
+            'color': colors[i],
+            'value': outgoing[i]
+        })
+        current_pos += arc_length + gap
+    
+    # Create plot
+    p = figure(width=width, height=height, title=title,
+               x_range=(-1.4, 1.4), y_range=(-1.4, 1.4),
+               toolbar_location=None, match_aspect=True)
+    p.axis.visible = False
+    p.grid.visible = False
+    p.outline_line_color = None
+    p.background_fill_color = bg_color
+    p.border_fill_color = bg_color
+    p.title.text_color = text_color
+    p.title.text_font = "'Consolas', 'Courier New', monospace"
+    p.title.text_font_size = "18pt"
+    
+    # Store all ribbon renderers and data sources
+    ribbon_renderers = []
+    ribbon_sources = []
+    
+    # Draw ribbons first
+    for i in range(n):
+        for j in range(n):
+            if i != j and matrix[i][j] > 0:
+                src_arc = arc_positions[i]
+                dst_arc = arc_positions[j]
+                
+                # Calculate source position (outgoing)
+                offset_i = matrix[i][:j].sum()
+                src_start_angle = src_arc['start'] + (offset_i / outgoing[i]) * (src_arc['end'] - src_arc['start']) if outgoing[i] > 0 else src_arc['start']
+                src_end_angle = src_start_angle + (matrix[i][j] / outgoing[i]) * (src_arc['end'] - src_arc['start']) if outgoing[i] > 0 else src_start_angle
+                
+                # Calculate destination position (incoming)
+                incoming_j = matrix[:, j]
+                offset_j = incoming_j[:i].sum()
+                dst_start_angle = dst_arc['start'] + (offset_j / incoming_j.sum()) * (dst_arc['end'] - dst_arc['start']) if incoming_j.sum() > 0 else dst_arc['start']
+                dst_end_angle = dst_start_angle + (matrix[i][j] / incoming_j.sum()) * (dst_arc['end'] - dst_arc['start']) if incoming_j.sum() > 0 else dst_start_angle
+                
+                # Create ribbon with quadratic bezier curves
+                r = 0.85
+                
+                # Source edge points
+                src_angles = np.linspace(src_start_angle, src_end_angle, 20)
+                src_x = r * np.cos(src_angles)
+                src_y = r * np.sin(src_angles)
+                
+                # Destination edge points
+                dst_angles = np.linspace(dst_end_angle, dst_start_angle, 20)
+                dst_x = r * np.cos(dst_angles)
+                dst_y = r * np.sin(dst_angles)
+                
+                # Create bezier curve
+                t = np.linspace(0, 1, 30)
+                
+                src_x_end = r * np.cos(src_end_angle)
+                src_y_end = r * np.sin(src_end_angle)
+                dst_x_start = r * np.cos(dst_start_angle)
+                dst_y_start = r * np.sin(dst_start_angle)
+                
+                curve1_x = (1-t)**2 * src_x_end + 2*(1-t)*t * 0 + t**2 * dst_x_start
+                curve1_y = (1-t)**2 * src_y_end + 2*(1-t)*t * 0 + t**2 * dst_y_start
+                
+                dst_x_end = r * np.cos(dst_end_angle)
+                dst_y_end = r * np.sin(dst_end_angle)
+                src_x_start = r * np.cos(src_start_angle)
+                src_y_start = r * np.sin(src_start_angle)
+                
+                curve2_x = (1-t)**2 * dst_x_end + 2*(1-t)*t * 0 + t**2 * src_x_start
+                curve2_y = (1-t)**2 * dst_y_end + 2*(1-t)*t * 0 + t**2 * src_y_start
+                
+                # Build complete ribbon path
+                ribbon_x = np.concatenate([src_x, curve1_x, dst_x, curve2_x])
+                ribbon_y = np.concatenate([src_y, curve1_y, dst_y, curve2_y])
+                
+                source = ColumnDataSource(data=dict(
+                    x=[ribbon_x], 
+                    y=[ribbon_y],
+                    source=[labels[i]],
+                    target=[labels[j]],
+                    value=[f"{matrix[i][j]:.1f}"],
+                    source_idx=[i],
+                    target_idx=[j]
+                ))
+                
+                source.data['alpha'] = [0.35]
+
+                ribbon = p.patches(
+                    'x', 'y',
+                    source=source,
+                    fill_color=colors[i],
+                    fill_alpha='alpha',
+                    line_color=None
+                )
+                
+                ribbon_renderers.append(ribbon)
+                ribbon_sources.append(source)
+    
+    info_div = Div(
+        text=f"""
+        <div style="
+            padding:10px;
+            border:2px solid {border_color};
+            border-radius:6px;
+            background:{info_bg};
+            font-family:'Consolas', 'Courier New', monospace;
+            font-size:13px;
+            width:200px;
+            color:{text_color};
+        ">
+            <b></b>
+        </div>
+        """,
+        width=200, margin=(-40,10,10,10)
+    )
+
+    # Create hover tool for ribbons
+    ribbon_hover = HoverTool(
+        renderers=ribbon_renderers,
+        tooltips=None,
+        callback=CustomJS(
+            args=dict(ribbons=ribbon_sources, div=info_div, state=hover_state, 
+                     border_color=border_color, info_bg=info_bg, text_color=text_color),
+            code="""
+            state.data.active[0] = "ribbon";
+            state.change.emit();
+
+            const r = cb_data.renderer.data_source;
+            const i = cb_data.index.indices[0];
+            if (i == null) return;
+
+            for (let k = 0; k < ribbons.length; k++) {
+                ribbons[k].data.alpha = [0.05];
+            }
+
+            r.data.alpha = [0.8];
+
+            for (let k = 0; k < ribbons.length; k++) {
+                ribbons[k].change.emit();
+            }
+
+            div.text = `
+            <div style="padding:10px;border:2px solid ${border_color};border-radius:6px;background:${info_bg};color:${text_color};font-family:'Consolas', 'Courier New', monospace;">
+                <b>From:</b> ${r.data.source[i]}<br>
+                <b>To:</b> ${r.data.target[i]}<br>
+                <b>Value:</b> ${r.data.value[i]}
+            </div>`;
+            """
+        )
+    )
+    p.add_tools(ribbon_hover)
+    
+    # Store all arc renderers and sources
+    arc_renderers = []
+    arc_sources = []
+    
+    # Draw outer arcs
+    for i, arc in enumerate(arc_positions):
+        if arc['end'] > arc['start']:
+            theta = np.linspace(arc['start'], arc['end'], 100)
+            outer_r = 1.0
+            inner_r = 0.85
+            
+            x_outer = outer_r * np.cos(theta)
+            y_outer = outer_r * np.sin(theta)
+            x_inner = inner_r * np.cos(theta[::-1])
+            y_inner = inner_r * np.sin(theta[::-1])
+            
+            x_arc = np.concatenate([x_outer, x_inner])
+            y_arc = np.concatenate([y_outer, y_inner])
+            
+            source = ColumnDataSource(data=dict(
+                x=[x_arc], 
+                y=[y_arc],
+                label=[arc['label']],
+                value=[f"{arc['value']:.1f}"],
+                idx=[i]
+            ))
+            
+            arc_patch = p.patches('x', 'y', source=source, 
+                                 fill_color=arc['color'], 
+                                 fill_alpha=0.9,
+                                 line_color=line_color, 
+                                 line_width=3,
+                                 hover_fill_alpha=1.0,
+                                 hover_line_width=4)
+            
+            arc_renderers.append(arc_patch)
+            arc_sources.append(source)
+    
+    # Add arc hover tool
+    arc_hover = HoverTool(
+        renderers=arc_renderers,
+        tooltips=None,
+        callback=CustomJS(
+            args=dict(ribbons=ribbon_sources, div=info_div,
+                     border_color=border_color, info_bg=info_bg, text_color=text_color),
+            code="""
+            const arc_data = cb_data.renderer.data_source.data;
+            const arc_idx = arc_data.idx[cb_data.index.indices[0]];
+            if (arc_idx == null) return;
+
+            for (let k = 0; k < ribbons.length; k++) {
+                const src = ribbons[k].data.source_idx[0];
+                const tgt = ribbons[k].data.target_idx[0];
+
+                if (src === arc_idx || tgt === arc_idx) {
+                    ribbons[k].data.alpha = [0.7];
+                } else {
+                    ribbons[k].data.alpha = [0.05];
+                }
+                ribbons[k].change.emit();
+            }
+
+            div.text = `
+            <div style="padding:10px;border:2px solid ${border_color};border-radius:6px;background:${info_bg};color:${text_color};font-family:'Consolas', 'Courier New', monospace;">
+                <b>Node:</b> ${arc_data.label[0]}<br>
+                <b>Total Outgoing:</b> ${arc_data.value[0]}
+            </div>
+            `;
+            """
+        )
+    )
+    p.add_tools(arc_hover)
+    
+    # Add background click to reset
+    p.js_on_event('tap', CustomJS(args=dict(ribbons=ribbon_sources), code="""
+        for (let k = 0; k < ribbons.length; k++) {
+            ribbons[k].data['alpha'] = [0.35];
+            ribbons[k].change.emit();
+        }
+    """))
+    
+    # Reset on mouse leave
+    p.js_on_event('mouseleave', CustomJS(
+        args=dict(ribbons=ribbon_sources, div=info_div,
+                 border_color=border_color, info_bg=info_bg, text_color=text_color),
+        code="""
+        for (let k = 0; k < ribbons.length; k++) {
+            ribbons[k].data.alpha = [0.35];
+            ribbons[k].change.emit();
+        }
+        
+        div.text = `
+        <div style="
+            padding:10px;
+            border:2px solid ${border_color};
+            border-radius:6px;
+            background:${info_bg};
+            font-family:'Consolas', 'Courier New', monospace;
+            font-size:13px;
+            width:200px;
+            color:${text_color};
+        ">
+            <b>Hover over a ribbon or arc</b>
+        </div>
+        `;
+        """
+    ))
+
+    # Add labels outside the circle
+    for arc in arc_positions:
+        if arc['end'] > arc['start']:
+            label_r = 1.18
+            label_x = label_r * np.cos(arc['mid'])
+            label_y = label_r * np.sin(arc['mid'])
+            
+            angle = arc['mid'] % (2 * np.pi)
+            if 0 <= angle < np.pi/2 or 3*np.pi/2 <= angle < 2*np.pi:
+                align = 'left'
+            else:
+                align = 'right'
+            
+            p.text(x=[label_x], y=[label_y], text=[arc['label']],
+                   text_align=align, text_baseline='middle',
+                   text_font_size='13pt', text_font_style='bold',
+                   text_color=text_color)
+    
+    return column(p, info_div)
+
+
+
+
+from bokeh.plotting import figure, show
+from bokeh.models import ColumnDataSource, CustomJS, TextInput
+from bokeh.layouts import column, row
+from bokeh.io import curdoc
+import numpy as np
+
+
+class Gauge:
+    """A beautiful, animated gauge component for Bokeh."""
+    
+    def __init__(self, width=500, height=500, title="", unit="%", 
+                 zones=None, initial_value=0, range_min=0, range_max=100,
+                 easing=False, theme="dark",
+                 bg_color=None, gauge_bg_color=None):
+        """
+        Create a beautiful gauge.
+        
+        Parameters:
+        -----------
+        width, height : int
+            Dimensions of the gauge
+        title : str
+            Title displayed above the gauge
+        unit : str
+            Unit label displayed below the value
+        zones : list of dict
+            Zone definitions with 'range', 'color', and 'label' keys
+            Example: [{"range": (0, 33), "color": "#00D4FF", "label": "LOW"}]
+        initial_value : float
+            Starting value
+        range_min : float
+            Minimum value of the gauge scale
+        range_max : float
+            Maximum value of the gauge scale
+        easing : bool
+            Enable smooth easing animation (True) or instant updates (False)
+        theme : str
+            "dark" or "light" theme
+        bg_color : str
+            Custom background color (overrides theme default)
+        gauge_bg_color : str
+            Custom gauge inner circle color (overrides theme default)
+        """
+        self.width = width
+        self.height = height
+        self.title = title
+        self.unit = unit
+        self.initial_value = initial_value
+        self.range_min = range_min
+        self.range_max = range_max
+        self.easing = easing
+        self.theme = theme
+        
+        # Calculate value range
+        self.value_range = range_max - range_min
+        
+        # Theme colors
+        if theme == "light":
+            self.bg_color = bg_color or "#F5F5F5"
+            self.gauge_bg_color = gauge_bg_color or "#E0E0E0"
+            self.text_color = "#2C2C2C"
+            self.tick_color = "#4A4A4A"
+            self.ring_color = "#6A6A6A"
+        else:  # dark
+            self.bg_color = bg_color or "#0D0D0D"
+            self.gauge_bg_color = gauge_bg_color or "#1A1A1A"
+            self.text_color = "#FFFFFF"
+            self.tick_color = "#FFFFFF"
+            self.ring_color = "#FFFFFF"
+        
+        # Default zones
+        self.zones = zones or [
+            {"range": (0, 33.33), "color": "#00D4FF", "label": "LOW"},
+            {"range": (33.33, 66.66), "color": "#FFD700", "label": "MEDIUM"},
+            {"range": (66.66, 100), "color": "#FF3366", "label": "HIGH"}
+        ]
+        
+        # Gauge geometry
+        self.outer_radius = 1.0
+        self.inner_radius = 0.78
+        self.start_angle = np.pi + np.pi/6  # 210 degrees
+        self.end_angle = -np.pi/6           # -30 degrees
+        self.total_angle_range = self.start_angle - self.end_angle
+        
+        # Create components
+        self.figure = self._create_figure()
+        self.source = self._create_datasource()
+        self._draw_gauge()
+        
+    def _create_figure(self):
+        """Create the base figure."""
+        p = figure(
+            width=self.width, 
+            height=self.height, 
+            x_range=(-1.7, 1.7), 
+            y_range=(-1.7, 1.7),
+            tools="", 
+            toolbar_location=None,
+            background_fill_color=self.bg_color,
+            border_fill_color=self.bg_color
+        )
+        p.axis.visible = False
+        p.grid.visible = False
+        p.outline_line_color = None
+        return p
+    
+    def _create_datasource(self):
+        """Create the data source for the pointer."""
+        # Normalize initial value to 0-1 range
+        normalized_value = (self.initial_value - self.range_min) / self.value_range
+        initial_angle = self.start_angle - normalized_value * self.total_angle_range
+        initial_color = self._get_zone_color(self.initial_value)
+        
+        return ColumnDataSource({
+            'x': [0],
+            'y': [0],
+            'angle': [initial_angle],
+            'value_text': [str(int(self.initial_value))],
+            'pointer_color': [initial_color]
+        })
+    
+    def _get_zone_color(self, value):
+        """Get color based on value and zones."""
+        for zone in self.zones:
+            if zone["range"][0] <= value <= zone["range"][1]:
+                return zone["color"]
+        if value >= self.zones[-1]["range"][1]:
+            return self.zones[-1]["color"]
+        return self.zones[0]["color"]
+    
+    def _draw_gauge(self):
+        """Draw all gauge elements."""
+        # Title
+        if self.title:
+            self.figure.text(
+                x=[0], y=[-1.45], text=[self.title],
+                text_align="center", text_baseline="middle",
+                text_color=self.text_color, text_font_size="22pt",
+                text_font_style="bold", text_alpha=0.95
+            )
+        
+        # Draw zone wedges
+        for zone in self.zones:
+            # Normalize zone ranges to 0-1
+            zone_start_normalized = (zone["range"][0] - self.range_min) / self.value_range
+            zone_end_normalized = (zone["range"][1] - self.range_min) / self.value_range
+            
+            zone_start = self.start_angle - zone_start_normalized * self.total_angle_range
+            zone_end = self.start_angle - zone_end_normalized * self.total_angle_range
+            
+            # Main zone rings - COMPLETELY FILL between inner and outer radius
+            num_rings = 30
+            radii = np.linspace(self.inner_radius, self.outer_radius, num_rings)
+            for r in radii:
+                self.figure.wedge(
+                    x=0, y=0, radius=r,
+                    start_angle=zone_end, end_angle=zone_start,
+                    color=zone["color"], line_color=zone["color"],
+                    line_width=3, alpha=0.98
+                )
+            
+            num_glow_rings = 8
+            glow_radii = np.linspace(self.outer_radius + 0.01, self.outer_radius + 0.08, num_glow_rings)
+            for i, r in enumerate(glow_radii):
+                alpha = 0.4 * (1 - i/num_glow_rings)
+                self.figure.wedge(
+                    x=0, y=0, radius=r,
+                    start_angle=zone_end, end_angle=zone_start,
+                    color=zone["color"], line_color=zone["color"],
+                    line_width=1, alpha=alpha
+                )
+            
+            # Zone label
+            angle = (zone_start + zone_end) / 2
+            label_radius = self.outer_radius + 0.5
+            x_label = label_radius * np.cos(angle)
+            y_label = label_radius * np.sin(angle)
+            self.figure.text(
+                x=[x_label], y=[y_label], text=[zone["label"]],
+                text_align="center", text_baseline="middle",
+                text_color=zone["color"], text_font_size="14pt",
+                text_font_style="bold"
+            )
+        
+        # Inner dark circle
+        self.figure.wedge(
+            x=0, y=0, radius=self.inner_radius,
+            start_angle=0, end_angle=2*np.pi,
+            color=self.gauge_bg_color, line_color=self.gauge_bg_color
+        )
+        
+        # Decorative rings
+        self.figure.circle(
+            x=0, y=0, radius=self.outer_radius + 0.02, 
+            line_color=self.ring_color, line_width=2, fill_color=None, alpha=0.25
+        )
+        self.figure.circle(
+            x=0, y=0, radius=self.inner_radius - 0.02, 
+            line_color=self.ring_color, line_width=2, fill_color=None, alpha=0.3
+        )
+        
+        # Tick marks
+        self._draw_ticks()
+        
+        # Pointer
+        self._draw_pointer()
+        
+        # Value display
+        self._draw_value_display()
+    
+    def _draw_ticks(self):
+        """Draw tick marks and labels."""
+        # Generate ticks based on actual range
+        num_major_ticks = 11
+        num_minor_ticks = 51
+        
+        major_ticks = np.linspace(self.range_min, self.range_max, num_major_ticks)
+        minor_ticks = np.linspace(self.range_min, self.range_max, num_minor_ticks)
+        
+        # Normalize tick positions to 0-1
+        major_normalized = (major_ticks - self.range_min) / self.value_range
+        minor_normalized = (minor_ticks - self.range_min) / self.value_range
+        
+        angles_major = [self.start_angle - norm * self.total_angle_range for norm in major_normalized]
+        angles_minor = [self.start_angle - norm * self.total_angle_range for norm in minor_normalized]
+        
+        # Minor ticks
+        for angle in angles_minor:
+            x0 = (self.inner_radius - 0.03) * np.cos(angle)
+            y0 = (self.inner_radius - 0.03) * np.sin(angle)
+            x1 = (self.inner_radius + 0.03) * np.cos(angle)
+            y1 = (self.inner_radius + 0.03) * np.sin(angle)
+            self.figure.line([x0, x1], [y0, y1], line_color=self.tick_color, line_width=1.5, alpha=0.3)
+        
+        # Major ticks and labels
+        for angle, tick in zip(angles_major, major_ticks):
+            x0 = (self.inner_radius - 0.05) * np.cos(angle)
+            y0 = (self.inner_radius - 0.05) * np.sin(angle)
+            x1 = (self.outer_radius + 0.05) * np.cos(angle)
+            y1 = (self.outer_radius + 0.05) * np.sin(angle)
+            
+            self.figure.line([x0, x1], [y0, y1], line_color=self.tick_color, line_width=2, alpha=0.5)
+            self.figure.line([x0, x1], [y0, y1], line_color=self.tick_color, line_width=4, alpha=0.15)
+            
+            # Tick label
+            label_radius = self.outer_radius + 0.25
+            x_label = label_radius * np.cos(angle)
+            y_label = label_radius * np.sin(angle)
+            self.figure.text(
+                x=[x_label], y=[y_label], text=[str(int(tick))],
+                text_align="center", text_baseline="middle",
+                text_color=self.tick_color, text_font_size="13pt",
+                text_font_style="normal", text_alpha=0.65
+            )
+    
+    def _draw_pointer(self):
+        """Draw the animated pointer."""
+        pointer_length = 0.68
+        
+        self.figure.wedge(
+            x='x', y='y', radius=pointer_length,
+            start_angle='angle', end_angle='angle',
+            color='pointer_color', alpha=1.0,
+            direction='clock', line_color='pointer_color',
+            line_width=4, source=self.source
+        )
+        
+        self.figure.wedge(
+            x='x', y='y', radius=pointer_length,
+            start_angle='angle', end_angle='angle',
+            color='pointer_color', alpha=0.4,
+            direction='clock', line_color='pointer_color',
+            line_width=12, source=self.source
+        )
+        
+        # Center hub
+        self.figure.circle(x=0, y=0, radius=0.14, fill_color='pointer_color',
+                          line_color='pointer_color', line_width=0, source=self.source, alpha=1.0)
+        self.figure.circle(x=0, y=0, radius=0.09, fill_color=self.bg_color,
+                          line_color='pointer_color', line_width=3, source=self.source, alpha=1.0)
+        self.figure.circle(x=0, y=0, radius=0.05, fill_color='pointer_color',
+                          source=self.source, alpha=1.0)
+    
+    def _draw_value_display(self):
+        """Draw the value display."""
+        # Main value - smaller font, moved up
+        self.figure.text(
+            x=0, y=-0.4, text='value_text', source=self.source,
+            text_align="center", text_baseline="middle",
+            text_color='pointer_color', text_font_size="40pt",
+            text_font_style="bold"
+        )
+        # Glow effect
+        self.figure.text(
+            x=0, y=-0.4, text='value_text', source=self.source,
+            text_align="center", text_baseline="middle",
+            text_color='pointer_color', text_font_size="40pt",
+            text_font_style="bold", text_alpha=0.3
+        )
+        # Unit label - smaller, moved up
+        self.figure.text(
+            x=0, y=-0.65, text=[self.unit],
+            text_align="center", text_baseline="middle",
+            text_color=self.text_color, text_font_size="13pt",
+            text_font_style="bold", text_alpha=0.7
+        )
+    
+    def get_animation_js(self, target_value, delay=500):
+        """Generate JavaScript animation code."""
+        easing_flag = 1 if self.easing else 0
+        
+        color_conditions = []
+        for i, zone in enumerate(self.zones):
+            if i == len(self.zones) - 1:
+                color_conditions.append(f'return "{zone["color"]}";')
+            else:
+                color_conditions.append(f'if (v <= {zone["range"][1]}) return "{zone["color"]}";')
+        color_func = '\n            '.join(color_conditions)
+        
+        return f'''
+    setTimeout(function() {{
+        const target = {target_value};
+        const start_angle = Math.PI + Math.PI/6;
+        const end_angle = -Math.PI/6;
+        const total = start_angle - end_angle;
+        const easing = {easing_flag};
+        
+        // Get the value range
+        const range_min = {self.range_min};
+        const range_max = {self.range_max};
+        const value_range = range_max - range_min;
+        
+        function getColor(v) {{
+            {color_func}
+        }}
+        
+        let curr = parseFloat(source.data.value_text[0]) || 0;
+        
+        function update() {{
+            if (easing) {{
+                const diff = target - curr;
+                if (Math.abs(diff) > 0.2) {{
+                    curr += diff * 0.08;
+                    // Normalize the value
+                    const normalized_value = (curr - range_min) / value_range;
+                    source.data.angle = [start_angle - normalized_value * total];
+                    source.data.value_text = [Math.round(curr).toString()];
+                    source.data.pointer_color = [getColor(curr)];
+                    source.change.emit();
+                    setTimeout(update, 20);
+                }}
+            }} else {{
+                curr = target;
+                // Normalize the value
+                const normalized_value = (curr - range_min) / value_range;
+                source.data.angle = [start_angle - normalized_value * total];
+                source.data.value_text = [Math.round(curr).toString()];
+                source.data.pointer_color = [getColor(curr)];
+                source.change.emit();
+            }}
+        }}
+        update();
+    }}, {delay});
+'''
+
+
+
+
+
+
+
+
+
