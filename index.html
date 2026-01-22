@@ -190,6 +190,10 @@
                 <button onclick="filterCategory('geo'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="geo">
                     <i class="fas fa-map mr-3"></i>Geographic
                 </button>
+                <button onclick="filterCategory('choropleth'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="choropleth">
+                    <i class="fas fa-choropleth mr-3"></i>Choropleth
+                </button>
+
                 <button onclick="filterCategory('box'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="box">
                     <i class="fas fa-box mr-3"></i>Box Plot
                 </button>
@@ -304,6 +308,9 @@
                 </button>
                 <button onclick="filterCategory('geo')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="geo">
                     <i class="fas fa-map mr-3"></i>Geographic
+                </button>
+                <button onclick="filterCategory('choropleth')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="choropleth">
+                    <i class="fas fa-choropleth mr-3"></i>Choropleth
                 </button>
                 <button onclick="filterCategory('box')" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="box">
                     <i class="fas fa-box mr-3"></i>Box Plot
@@ -508,6 +515,127 @@
                 htmlFile: 'tile_plot.html',
                 codeFile: 'tile_plot.py'
             },
+
+            {
+                id: 'choropleth',
+                title: 'Geographic Map',
+                category: 'choropleth',
+                description: 'World map with data visualization',
+                htmlFile: 'geo_00.html',
+                codeFile: 'geo_00.py',
+                preview: 'geo_00.png'
+
+            },
+            {
+                id: 'choropleth',
+                title: 'Geographic Map',
+                category: 'choropleth',
+                description: 'World map with data visualization',
+                htmlFile: 'geo_01.html',
+                codeFile: 'geo_01.py',
+                preview: 'geo_01.png'
+
+            },
+            {
+                id: 'choropleth',
+                title: 'Geographic Map',
+                category: 'choropleth',
+                description: 'World map with data visualization',
+                htmlFile: 'geo_02.html',
+                codeFile: 'geo_02.py',
+                preview: 'geo_02.png'
+
+            },            
+            {
+                id: 'choropleth',
+                title: 'Geographic Map',
+                category: 'choropleth',
+                description: 'World map with data visualization',
+                htmlFile: 'geo_03.html',
+                codeFile: 'geo_03.py',
+                preview: 'geo_03.png'
+
+            },
+            {
+                id: 'choropleth',
+                title: 'Geographic Map',
+                category: 'choropleth',
+                description: 'World map with data visualization',
+                htmlFile: 'geo_04.html',
+                codeFile: 'geo_04.py',
+                preview: 'geo_04.png'                
+            },
+
+            {
+                id: 'choropleth',
+                title: 'Geographic Map',
+                category: 'choropleth',
+                description: 'World map with data visualization',
+                htmlFile: 'geo_05.html',
+                codeFile: 'geo_05.py',
+                preview: 'geo_05.png'                
+            },
+
+            {
+                id: 'choropleth',
+                title: 'Geographic Map',
+                category: 'choropleth',
+                description: 'World map with data visualization',
+                htmlFile: 'geo_06.html',
+                codeFile: 'geo_06.py',
+                preview: 'geo_06.png'                
+            },
+
+            {
+                id: 'choropleth',
+                title: 'Geographic Map',
+                category: 'choropleth',
+                description: 'World map with data visualization',
+                htmlFile: 'geo_07.html',
+                codeFile: 'geo_07.py',
+                preview: 'geo_07.png'                
+            },
+
+            {
+                id: 'choropleth',
+                title: 'Geographic Map',
+                category: 'choropleth',
+                description: 'World map with data visualization',
+                htmlFile: 'geo_08.html',
+                codeFile: 'geo_08.py',
+                preview: 'geo_08.png'                
+            },
+
+            {
+                id: 'choropleth',
+                title: 'Geographic Map',
+                category: 'choropleth',
+                description: 'World map with data visualization',
+                htmlFile: 'geo_09.html',
+                codeFile: 'geo_09.py',
+                preview: 'geo_09.png'                
+            },
+
+            {
+                id: 'choropleth',
+                title: 'Geographic Map',
+                category: 'choropleth',
+                description: 'World map with data visualization',
+                htmlFile: 'geo_10.html',
+                codeFile: 'geo_10.py',
+                preview: 'geo_10.png'                
+            },
+
+            {
+                id: 'choropleth',
+                title: 'Geographic Map',
+                category: 'choropleth',
+                description: 'World map with data visualization',
+                htmlFile: 'geo_11.html',
+                codeFile: 'geo_11.py',
+                preview: 'geo_11.png'                
+            },
+
             {
     id: 'box-plot',
     title: 'Box Plot Example',
@@ -829,6 +957,7 @@ grid.innerHTML = filtered.map(showcase => `
         area: 'area',
         heatmap: 'table-cells',
         geo: 'globe',
+        choropleth: 'choropleth',
         box: 'box',
         pie: 'pie',
         chord: 'circle-half-stroke',
