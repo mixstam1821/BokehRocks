@@ -960,3 +960,423 @@ def create_heatmap_figure(
     p.title.text_font_size = "14pt"
 
     return p
+
+
+
+from math import pi
+import pandas as pd
+from bokeh.plotting import figure, show
+from bokeh.transform import cumsum
+from bokeh.palettes import Category10, Category20, Turbo256
+palette= ['#0096FF','#FFAC1C','#00ff44','#FF3131','#ea51ea','#1F51FF','#FFEA00','#97573a','#00FFFF','#ff9cff','#008000','#A42A04','#D2B48C','#878787',]
+
+def fpie_basic(df, title="Pie Chart", colors=palette,bgc=None,
+               offset=(0, 1), radius=0.8,tth=1, sh=1,
+               height=650, width=800,
+               ):
+    """
+    Create a static pie chart (offset-style) directly from a DataFrame.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Must contain two columns: category (str) and value (numeric).
+    title : str
+        Chart title.
+    colors : list, optional
+        List of color hex codes or names. Defaults to auto palette.
+    offset : tuple
+        (x, y) position of the pie center.
+    radius : float
+        Radius of the pie.
+    height, width : int
+        Chart size in pixels.
+    cross : bool
+        If True, draw faint cross lines through the pie center (for layout debugging).
+    """
+
+    # --- Validate input ---
+    if len(df.columns) < 2:
+        raise ValueError("DataFrame must have at least two columns: category and value.")
+
+    df = df.copy()
+    cat_col, val_col = df.columns[:2]
+    df.columns = ['category', 'value']
+
+    # --- Palette handling ---
+    n = len(df)
+
+    if colors is None:
+        colors = palette[:n]
+    else:
+        colors = colors[:n]
+
+
+    if n > len(colors):
+        step = 256 // n
+        colors = Turbo256[::step][:n]
+
+
+
+
+    # --- Angle and color setup ---
+    df['angle'] = df['value'] / df['value'].sum() * 2 * pi
+    df['color'] = colors
+
+    # --- Create figure ---
+    p = figure(
+        height=height, width=width, title=title,
+        x_range=(-1, 1), y_range=(-0.5, 2.5),
+        background_fill_color= bgc,
+
+
+    )
+
+    # --- Draw wedges ---
+    p.wedge(
+        x=offset[0], y=offset[1], radius=radius,
+        start_angle=cumsum('angle', include_zero=True),
+        end_angle=cumsum('angle'),
+        line_color="white", 
+        fill_color='color',
+        legend_field='category', source=df,
+        hover_line_color='black', hover_line_width=5
+    )
+    add_extras(p, tth = tth,cross=0)
+    p.toolbar_location = None
+    # --- Style tweaks ---
+    p.axis.visible = False
+    p.grid.visible = False
+    p.outline_line_color = None
+    p.legend.location = "center_right"
+    p.legend.click_policy = 'none'
+    p.legend.background_fill_alpha = 0.0
+    p.legend.border_line_alpha = 0.0
+    p.border_fill_color = bgc
+    p.background_fill_color = bgc
+    p.toolbar.active_drag = None     # disables pan or box zoom
+    p.toolbar.active_scroll = None   # disables wheel zoom
+    
+    p.add_tools(HoverTool(tooltips=hovfun("@category: <b>@value</b>"), show_arrow=False, point_policy="follow_mouse"))
+
+
+    if tth==1:
+        if bgc is None:
+            bgc="#3d3d3d"
+        p.styles = {'margin-top': '0px','margin-left': '0px','border-radius': '10px','box-shadow': '0 18px 20px rgba(243, 192, 97, 0.2)','padding': '5px','background-color': bgc,'border': '1.5px solid orange'}
+    else:
+        if bgc is None:
+            bgc="#fff6c0"
+        p.styles = {'margin-top': '0px','margin-left': '0px','border-radius': '10px','box-shadow': '0 18px 20px rgba(165, 221, 253, 0.2)','padding': '5px','background-color': bgc,'border': '1.5px solid deepskyblue'}
+    
+    if sh == 1:
+        show(p)
+    
+    return p
+
+from math import pi
+import pandas as pd
+from bokeh.plotting import figure, show
+from bokeh.models import ColumnDataSource, HoverTool, AnnularWedge
+from bokeh.palettes import Turbo256
+
+# Reuse your palette
+palette = ['#0096FF','#FFAC1C','#00ff44','#FF3131','#ea51ea','#1F51FF',
+           '#FFEA00','#97573a','#00FFFF','#ff9cff','#008000','#A42A04',
+           '#D2B48C','#878787']
+
+def fdonut_basic(df, title="Donut Chart", colors=palette, bgc=None,
+                 offset=(0, 0), outer_radius=0.7, inner_radius=0.35,
+                 tth=1, sh=1, height=650, width=800):
+    """
+    Create a static donut (annular) chart from a DataFrame.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Must contain two columns: category (str) and value (numeric).
+    title : str
+        Chart title.
+    colors : list
+        List of colors for slices.
+    bgc : str
+        Background color.
+    offset : tuple
+        Center offset (x, y).
+    outer_radius, inner_radius : float
+        Radii of the donut.
+    tth : int
+        Theme type (1=orange, 0=blue).
+    sh : int
+        Whether to call show() automatically.
+    height, width : int
+        Plot size.
+    """
+
+    # --- Validate input ---
+    if len(df.columns) < 2:
+        raise ValueError("DataFrame must have at least two columns: category and value.")
+
+    df = df.copy()
+    cat_col, val_col = df.columns[:2]
+    df.columns = ['category', 'value']
+
+    n = len(df)
+    if colors is None:
+        colors = palette[:n]
+    else:
+        colors = colors[:n]
+    if n > len(colors):
+        step = 256 // n
+        colors = Turbo256[::step][:n]
+
+    # --- Angles ---
+    df['angle'] = df['value'] / df['value'].sum() * 2 * pi
+    df['start_angle'] = df['angle'].cumsum().shift(1, fill_value=0)
+    df['end_angle'] = df['angle'].cumsum()
+    df['color'] = colors
+
+    src = ColumnDataSource(df)
+
+    # --- Figure ---
+    p = figure(
+        width=width, height=height, title=title,
+        toolbar_location=None,
+        x_range=(-1, 0.8), y_range=(-2, 2),
+        background_fill_color=bgc,
+        border_fill_color=bgc
+    )
+    # --- Donut wedges ---
+    p.annular_wedge(
+        x=offset[0], y=offset[1],
+        inner_radius=inner_radius,
+        outer_radius=outer_radius,
+        start_angle='start_angle',
+        end_angle='end_angle',
+        line_color="white",
+        fill_color='color',
+        source=src,
+        legend_field='category',
+        hover_line_color='black', hover_line_width=5
+    )
+
+    # --- Hover tooltip ---
+    p.add_tools(HoverTool(
+        tooltips=hovfun("@category: <b>@value</b>"),
+        show_arrow=False,
+        point_policy="follow_mouse"
+    ))
+    add_extras(p, tth = tth,cross=0)
+    p.toolbar_location = None
+    # --- Style tweaks ---
+    p.axis.visible = False
+    p.grid.visible = False
+    p.outline_line_color = None
+    p.legend.location = "center_right"
+    p.legend.click_policy = 'none'
+    p.legend.background_fill_alpha = 0.0
+    p.legend.border_line_alpha = 0.0
+    p.border_fill_color = bgc
+    p.background_fill_color = bgc
+    p.toolbar.active_drag = None     # disables pan or box zoom
+    p.toolbar.active_scroll = None   # disables wheel zoom
+
+
+    if tth==1:
+        if bgc is None:
+            bgc="#3d3d3d"
+        p.styles = {'margin-top': '0px','margin-left': '0px','border-radius': '10px','box-shadow': '0 18px 20px rgba(243, 192, 97, 0.2)','padding': '5px','background-color': bgc,'border': '1.5px solid orange'}
+    else:
+        if bgc is None:
+            bgc="#fff6c0"
+        p.styles = {'margin-top': '0px','margin-left': '0px','border-radius': '10px','box-shadow': '0 18px 20px rgba(165, 221, 253, 0.2)','padding': '5px','background-color': bgc,'border': '1.5px solid deepskyblue'}
+    
+    if sh == 1:
+        show(p)
+    
+    return p
+
+
+
+
+import numpy as np
+from bokeh.plotting import figure, show
+from bokeh.models import ColumnDataSource, HoverTool
+
+def rounded_annular_wedge_patch(center, inner_radius, outer_radius, start_angle, end_angle, 
+                               corner_radius=0.05, n_points=80, gap_width=0):
+    cx, cy = center
+    if gap_width > 0:
+        inner_gap_angle = gap_width / inner_radius / 2.5
+        outer_gap_angle = gap_width / outer_radius / 2
+        start_angle_inner = start_angle + inner_gap_angle
+        end_angle_inner = end_angle - inner_gap_angle
+        start_angle_outer = start_angle + outer_gap_angle  
+        end_angle_outer = end_angle - outer_gap_angle
+    else:
+        start_angle_inner = start_angle_outer = start_angle
+        end_angle_inner = end_angle_outer = end_angle
+    corner_points = 15
+    angular_corner_offset_inner = corner_radius / inner_radius
+    angular_corner_offset_outer = corner_radius / outer_radius
+    outer_start_adj = start_angle_outer + angular_corner_offset_outer
+    outer_end_adj = end_angle_outer - angular_corner_offset_outer
+    if outer_end_adj > outer_start_adj:
+        outer_angles = np.linspace(outer_start_adj, outer_end_adj, n_points)
+        x_outer = cx + outer_radius * np.cos(outer_angles)
+        y_outer = cy + outer_radius * np.sin(outer_angles)
+    else:
+        x_outer = np.array([])
+        y_outer = np.array([])
+    inner_start_adj = end_angle_inner - angular_corner_offset_inner
+    inner_end_adj = start_angle_inner + angular_corner_offset_inner
+    if inner_start_adj > inner_end_adj:
+        inner_angles = np.linspace(inner_start_adj, inner_end_adj, n_points)
+        x_inner = cx + inner_radius * np.cos(inner_angles)
+        y_inner = cy + inner_radius * np.sin(inner_angles)
+    else:
+        x_inner = np.array([])
+        y_inner = np.array([])
+    # Corners
+    corner1_center_x = cx + (outer_radius - corner_radius) * np.cos(start_angle_outer)
+    corner1_center_y = cy + (outer_radius - corner_radius) * np.sin(start_angle_outer)
+    c1_start = start_angle_outer - np.pi/2
+    c1_end = start_angle_outer
+    c1_angles = np.linspace(c1_start, c1_end, corner_points)
+    x_c1 = corner1_center_x + corner_radius * np.cos(c1_angles)
+    y_c1 = corner1_center_y + corner_radius * np.sin(c1_angles)
+    corner2_center_x = cx + (outer_radius - corner_radius) * np.cos(end_angle_outer)
+    corner2_center_y = cy + (outer_radius - corner_radius) * np.sin(end_angle_outer)
+    c2_start = end_angle_outer
+    c2_end = end_angle_outer + np.pi/2
+    c2_angles = np.linspace(c2_start, c2_end, corner_points)
+    x_c2 = corner2_center_x + corner_radius * np.cos(c2_angles)
+    y_c2 = corner2_center_y + corner_radius * np.sin(c2_angles)
+    corner3_center_x = cx + (inner_radius + corner_radius) * np.cos(end_angle_inner)
+    corner3_center_y = cy + (inner_radius + corner_radius) * np.sin(end_angle_inner)
+    c3_start = end_angle_inner + np.pi/2
+    c3_end = end_angle_inner + np.pi
+    c3_angles = np.linspace(c3_start, c3_end, corner_points)
+    x_c3 = corner3_center_x + corner_radius * np.cos(c3_angles)
+    y_c3 = corner3_center_y + corner_radius * np.sin(c3_angles)
+    corner4_center_x = cx + (inner_radius + corner_radius) * np.cos(start_angle_inner)
+    corner4_center_y = cy + (inner_radius + corner_radius) * np.sin(start_angle_inner)
+    c4_start = start_angle_inner + np.pi
+    c4_end = start_angle_inner + 3*np.pi/2
+    c4_angles = np.linspace(c4_start, c4_end, corner_points)
+    x_c4 = corner4_center_x + corner_radius * np.cos(c4_angles)
+    y_c4 = corner4_center_y + corner_radius * np.sin(c4_angles)
+    x_patch = np.concatenate([
+        x_c1, x_outer, x_c2, x_c3, x_inner, x_c4
+    ])
+    y_patch = np.concatenate([
+        y_c1, y_outer, y_c2, y_c3, y_inner, y_c4
+    ])
+    return x_patch, y_patch
+
+def plot_rounded_annular_wedges(
+    data, labels=None, colors=None, center=(0.3,0),tth=1,bgc=None,sh=1,width=800,height=600,
+    inner_radius=0.5, outer_radius=1.0, corner_radius=0.08, gap_width=0.19, n_points=80,
+    title="Rounded Doughnut Chart",legend_y=0.2
+):
+    total = sum(data)
+    N = len(data)
+    if not colors:
+        colors = ["gold", "lime", "dodgerblue", "purple", "orange", "cyan", "magenta"]
+    colors = (colors * ((N + len(colors) - 1) // len(colors)))[:N]
+    if not labels:
+        labels = [f"Piece {i+1}" for i in range(N)]
+    angles = [2*np.pi*v/total for v in data]
+    start_angle = np.deg2rad(30)
+    starts = [start_angle]
+    for a in angles[:-1]:
+        starts.append(starts[-1] + a)
+    ends = [s + a for s, a in zip(starts, angles)]
+    percents = [f"{int(round(100 * v / total))}%" for v in data]
+
+    xs, ys = [], []
+    for s, e in zip(starts, ends):
+        x, y = rounded_annular_wedge_patch(
+            center, inner_radius, outer_radius, s, e, corner_radius, n_points, gap_width=gap_width
+        )
+        xs.append(x.tolist())
+        ys.append(y.tolist())
+
+    source = ColumnDataSource(data=dict(
+        xs=xs, ys=ys, label=labels, percent=percents, color=colors
+    ))
+
+    p = figure(width=width, height=height, x_range=(-1.2, 1.8), y_range=(-1.1, 1.1),
+               match_aspect=True, title=title)
+    patches_renderer = p.patches('xs', 'ys', source=source,
+                                 fill_color='color', fill_alpha=1,
+                                 line_color="white", line_width=2,
+                                 hover_line_color='black', hover_line_width=3)
+
+    hover = HoverTool(
+        tooltips=hovfun("@label: <b>@percent</b>"),
+        show_arrow=False,
+        point_policy="follow_mouse",
+        renderers=[patches_renderer]
+    )
+    p.add_tools(hover)
+
+    # Percentage text labels
+    label_coords_x = []
+    label_coords_y = []
+    for s, e in zip(starts, ends):
+        mid_angle = (s + e) / 2
+        r_label = (inner_radius + outer_radius) / 2
+        lx = center[0] + r_label * np.cos(mid_angle)
+        ly = center[1] + r_label * np.sin(mid_angle)
+        label_coords_x.append(lx)
+        label_coords_y.append(ly)
+
+    p.text(
+        x=label_coords_x,
+        y=label_coords_y,
+        text=percents,
+        text_align="center",
+        text_baseline="middle",
+        text_font_size="14pt",
+        text_color="black",
+        text_font_style="bold"
+    )
+    # Custom legend (top right)
+    legend_x = 0.14#1.22
+    legend_y = legend_y#0.2#0.8
+    legend_spacing = 0.1
+    for i, (c, lbl) in enumerate(zip(colors, labels)):
+        y_pos = legend_y - i * legend_spacing
+        p.scatter([legend_x], [y_pos], size=18, color=c, alpha=0.7)
+        p.text([legend_x + 0.09], [y_pos], text=[lbl], text_align="left", text_color="grey", text_baseline="middle", text_font_size="13pt")
+
+    add_extras(p, tth = tth,cross=0)
+    p.toolbar_location = None
+    # --- Style tweaks ---
+    p.axis.visible = False
+    p.grid.visible = False
+    p.outline_line_color = None
+
+    p.border_fill_color = bgc
+    p.background_fill_color = bgc
+    p.toolbar.active_drag = None     # disables pan or box zoom
+    p.toolbar.active_scroll = None   # disables wheel zoom
+    p.min_border_right=0
+    p.min_border_bottom=0
+
+    if tth==1:
+        if bgc is None:
+            bgc="#3d3d3d"
+        p.styles = {'margin-top': '0px','margin-left': '0px','border-radius': '10px','box-shadow': '0 18px 20px rgba(243, 192, 97, 0.2)','padding': '5px','background-color': bgc,'border': '1.5px solid orange'}
+    else:
+        if bgc is None:
+            bgc="#fff6c0"
+        p.styles = {'margin-top': '0px','margin-left': '0px','border-radius': '10px','box-shadow': '0 18px 20px rgba(165, 221, 253, 0.2)','padding': '5px','background-color': bgc,'border': '1.5px solid deepskyblue'}
+    
+    if sh == 1:
+        show(p)
+    
+    return p
+
+
