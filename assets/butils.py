@@ -810,3 +810,153 @@ def plot_country_choropleth(geojson_url, data_dict, value_col,
     
     return p
 
+
+
+
+
+from bokeh.plotting import figure, show
+from bokeh.models import (
+    LinearColorMapper, ColorBar, ColumnDataSource, HoverTool
+)
+from bokeh.transform import transform
+from matplotlib.colors import to_hex
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+
+# -----------------------------------------------------
+# 🎨 Utility: Convert matplotlib cmap to hex list
+# -----------------------------------------------------
+def mpl_to_hex_palette(cmap_name='viridis', n_colors=256):
+    cmap = plt.get_cmap(cmap_name)
+    return [to_hex(cmap(i / n_colors)) for i in range(n_colors)]
+
+
+# -----------------------------------------------------
+# 💡 Core Function: High-Level Heatmap Generator
+# -----------------------------------------------------
+def create_heatmap_figure(
+    data,
+    x_labels=None,
+    y_labels=None,
+    cmap='viridis',
+    title="Heatmap",
+    width=600,
+    height=400,
+    show_values=True,
+    hover_format=None,
+    text_font_size = '11pt',
+    text_color = 'grey'
+):
+    """
+    Create a Bokeh heatmap for any 2D dataset.
+
+    Parameters
+    ----------
+    data : np.ndarray or pd.DataFrame
+        2D dataset (e.g., correlation matrix, metrics table, etc.)
+    x_labels : list
+        X-axis labels (optional if DataFrame provided)
+    y_labels : list
+        Y-axis labels (optional if DataFrame provided)
+    cmap : str
+        Matplotlib colormap name (e.g., 'coolwarm', 'plasma', etc.)
+    title : str
+        Figure title
+    width, height : int
+        Figure size in pixels
+    show_values : bool
+        Whether to show numeric values in each cell
+    hover_format : str
+        Custom hover tooltip (optional)
+    """
+
+    # 1️⃣ Handle data input
+    if isinstance(data, pd.DataFrame):
+        x_labels = list(data.columns) if x_labels is None else x_labels
+        y_labels = list(data.index) if y_labels is None else y_labels
+        values = data.values
+    else:
+        values = np.array(data)
+        if x_labels is None:
+            x_labels = [f"X{i}" for i in range(values.shape[1])]
+        if y_labels is None:
+            y_labels = [f"Y{i}" for i in range(values.shape[0])]
+
+    # 2️⃣ Prepare Bokeh-friendly data source
+    x_coords, y_coords, vals = [], [], []
+    for i, y in enumerate(y_labels):
+        for j, x in enumerate(x_labels):
+            x_coords.append(x)
+            y_coords.append(y)
+            vals.append(values[i, j])
+
+    source = ColumnDataSource(data=dict(x=x_coords, y=y_coords, values=vals))
+
+    # 3️⃣ Color mapping
+    palette = mpl_to_hex_palette(cmap)
+    color_mapper = LinearColorMapper(palette=palette, low=np.min(vals), high=np.max(vals))
+
+    # 4️⃣ Create figure
+    p = figure(
+        title=title,
+        x_range=x_labels,
+        y_range=list(reversed(y_labels)),
+        width=width,
+        height=height,
+        tools="",
+        toolbar_location=None
+    )
+
+    rects = p.rect(
+        x="x",
+        y="y",
+        width=1,
+        height=1,
+        source=source,
+        fill_color=transform('values', color_mapper),
+        line_color="black",
+        hover_line_color="deepskyblue",
+        hover_line_width=3
+    )
+
+    # 5️⃣ Optional text labels
+    if show_values:
+        p.text(
+            x="x",
+            y="y",
+            text="values",
+            source=source,
+            text_align="center",
+            text_baseline="middle",
+            text_font_size=text_font_size,
+            text_color=text_color
+        )
+
+    # 6️⃣ Add color bar
+    color_bar = ColorBar(color_mapper=color_mapper,  width=11, location=(0,0), major_label_text_font_size="16pt", title_text_font_size="16pt")
+    p.add_layout(color_bar, 'right')
+
+    # 7️⃣ Default hover tooltip if none provided
+    if hover_format is None:
+        hover_format = hovfun("🧩 X: @x<br>🧭 Y: @y<br>🌡️ Value: @values{0.000}")
+
+    hover = HoverTool(
+        tooltips=hover_format,
+        renderers=[rects],
+        mode='mouse',
+        point_policy='follow_mouse',
+        attachment='below',
+        show_arrow=False
+    )
+    p.add_tools(hover)
+
+    # 8️⃣ Minimalistic style
+    p.grid.grid_line_color = None
+    p.axis.axis_line_color = None
+    p.axis.major_tick_line_color = None
+    p.axis.major_label_text_font_size = "12pt"
+    p.title.text_font_size = "14pt"
+
+    return p
