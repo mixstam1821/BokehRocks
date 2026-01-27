@@ -1,6 +1,7 @@
-from butils import *
-
-
+from bokeh_rocks import create_alluvial, save_plot
+from bokeh.io import show
+from bokeh.io import curdoc
+curdoc().theme = "light_minimal"
 flows_customer = [
     # Awareness -> Consideration (Awareness totals: Social Media=1200, Search=1100, Referral=300)
     [

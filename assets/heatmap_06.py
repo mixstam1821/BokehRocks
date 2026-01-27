@@ -1,5 +1,5 @@
 from bokeh.plotting import figure, show
-from butils import *
+from bokeh_rocks import *
 
 from bokeh.models import (ColumnDataSource, ColorBar, LinearColorMapper, HoverTool,
                          BoxAnnotation, Label, Range1d, Title, Span)

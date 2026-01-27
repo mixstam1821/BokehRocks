@@ -1,7 +1,7 @@
 from bokeh.plotting import figure, output_file, show
 from bokeh.models import ColumnDataSource
 import math
-from butils import save_plot
+from bokeh_rocks import save_plot
 # ===== Data =====
 vegetables = [
     'Broccoli', 'Tomato', 'Carrot', 'Corn', 'Potato'

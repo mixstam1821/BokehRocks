@@ -1,6 +1,4 @@
-
-from butils import *
-
+from bokeh_rocks import Gauge, show, save_plot
 gauge0 = Gauge(
     width=450, height=450,
     title="System Performance",

@@ -1,4 +1,7 @@
-from butils import *
+from bokeh_rocks import plot_world_population, save_plot
+from cartopy import crs as ccrs
+import requests
+
 # READ DATA
 pop_data = requests.get("https://raw.githubusercontent.com/mixstam1821/bokeh_showcases/refs/heads/main/assets0/pop2022.json").json()
 url = "https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/world-countries.json"
@@ -24,12 +27,9 @@ projection = ccrs.Mollweide() ; projName = 'Mollweide'         # Mollweide proje
 palette2 = [
     "#ececec",
     "#b9d7c2",
-    "#87b37a",
     "#65934c",
     "#c4b16a",
-    "#dfc872",
     "#e7b07a",
-    "#d08c60",
     "#b05f3c",
     "#7e4836",
 ]

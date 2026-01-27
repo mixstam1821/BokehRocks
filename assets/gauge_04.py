@@ -1,6 +1,8 @@
 
-from butils import *
-
+from bokeh_rocks import Gauge, show, save_plot
+from bokeh.models import CustomJS
+from bokeh.io import curdoc
+from bokeh.layouts import row
 temp_zones = [
     {"range": (0, 25), "color": "#0080FF", "label": "COLD"},
     {"range": (25, 50), "color": "#00C853", "label": "COOL"},

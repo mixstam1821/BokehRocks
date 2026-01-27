@@ -1,4 +1,4 @@
-from butils import *
+from bokeh_rocks import *
 energy_flows = [
     {"source": "Coal", "target": "Industrial", "value": 25},
     {"source": "Coal", "target": "Residential", "value": 10},

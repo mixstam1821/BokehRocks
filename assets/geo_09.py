@@ -1,4 +1,5 @@
-from butils import *
+from bokeh_rocks import plot_country_choropleth, save_plot, show
+
 
 # Unemployment rate % (2024)
 unemployment_data = {
@@ -29,7 +30,7 @@ p = plot_country_choropleth(
     data_dict=unemployment_data,
     value_col='unemployment',
     country_name='🇮🇹 Italy',
-    palette=["#1a9850", "#66bd63", "#a6d96a", "#d9ef8b", "#fee08b", "#fdae61", "#f46d43", "#d73027"],
+    palette=["#1a9850", "#66bd63", "#d9ef8b", "#fee08b", "#fdae61", "#f46d43", "#d73027"],
     bin_edges=[0, 5, 7, 9, 11, 13, 15, 18],
     bin_labels=["<5%", "5-7%", "7-9%", "9-11%", "11-13%", "13-15%", "15%+"],
     title="🇮🇹 Italy Unemployment Rate by Region (2024)",
@@ -37,8 +38,8 @@ p = plot_country_choropleth(
     legend_title='Unemployment %',
     tooltip_label='Unemployment Rate',
     value_format='{0.1}%',
-    width=600,
-    height=700
+    width=800,
+    height=800
 )
 
 show(p)

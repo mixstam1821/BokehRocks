@@ -1,5 +1,4 @@
-from butils import *
-
+from bokeh_rocks import plot_country_choropleth, save_plot, show
 
 # Regional population 2023
 population_data = {
@@ -23,7 +22,7 @@ p = plot_country_choropleth(
     data_dict=population_data,
     value_col='population',
     country_name='🇬🇷 Greece',
-    palette=["#f7fbff", "#deebf7", "#c6dbef", "#9ecae1", "#6baed6", "#3182bd", "#08519c"],
+    palette=["#f7fbff", "#deebf7",  "#9ecae1", "#6baed6",  "#08519c"],
     bin_edges=[0, 250000, 400000, 600000, 800000, 1500000, 4000000],
     bin_labels=["<250k", "250-400k", "400-600k", "600-800k", "800k-1.5M", "1.5M+"],
     title="🇬🇷 Greece Population by Region (2023)",
@@ -32,8 +31,8 @@ p = plot_country_choropleth(
     tooltip_label='Population',
     value_format='{0,0}',
     width=1000,
-    height=1000,
-    bounds=(19.5, 34.5, 29.5, 42.0)
+    height=800,
+    bounds=(19.5, 34.5, 29.5, 42.0), bg_color='#4b4b4b'
 )
 
 show(p)

@@ -1,4 +1,4 @@
-from butils import *
+from bokeh_rocks import *
 budget_flows = [
     {"source": "Revenue", "target": "Engineering", "value": 400},
     {"source": "Revenue", "target": "Marketing", "value": 250},

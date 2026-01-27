@@ -1,44 +1,48 @@
-from butils import *
-
-import pandas as pd
+import bokeh_rocks as br
+from bokeh.plotting import figure, show
 import numpy as np
-from bokeh.plotting import figure, show, output_notebook
-from bokeh.models import ColumnDataSource, HoverTool, Legend, LegendItem
+import pandas as pd
 
-# output_notebook()
+# Example 2: Multiple y columns + glow with tooltips
+# ===================================================
+df2 = pd.DataFrame({
+    'x': np.random.normal(50, 10, 100),
+    'metric_1': np.random.normal(100, 15, 100),
+    'metric_2': np.random.normal(150, 20, 100)
+})
 
-# Generate sample data
-np.random.seed(42)
-months = np.tile(np.arange(1, 13), 500)
-temperature = np.random.normal(loc=20, scale=5, size=6000)
-temperature2 = np.random.normal(loc=20, scale=5, size=6000)
+glow_pts2 = {
+    'x': [45, 55, 50],
+    'y': [100, 150, 125]
+}
 
-data = pd.DataFrame({'Month': months, 'Temperature': temperature, 'Temperature2': temperature2})
+glow_info2 = {
+    'label': ['Target A', 'Target B', 'Target C'],
+    'priority': ['High', 'Medium', 'High'],
+    'value': [99.5, 148.2, 124.8]
+}
 
-# Define colors for months
-colors = ["red", "blue", "green", "orange", "purple", "pink", "lime", "cyan", "magenta", "yellow", "brown", "gray"]
-month_colors = {month: color for month, color in zip(range(1, 13), colors)}
+p2 = br.scatter(
+    df2,
+    x='x',
+    y=['metric_1', 'metric_2'],
+    title='Metrics with Target Points',
+    ripple_cols=['metric_1'],
+    ripple_circles=4,
+    ripple_animate=True,
+    glow=True,
+    glow_points=glow_pts2,
+    glow_data=glow_info2,
+    glow_color='gold',
+    glow_size=25,
+    glow_intensity=6,
+    glow_label='Targets',
+    palette=['#0096FF', '#FF3131'],
+    size=8,
+    width=1200,
+    height=800,
+)
 
-# Add a column to the dataframe with the color for each month
-data['Color'] = data['Month'].map(month_colors)
-data['hidden'] = np.ones(len(data)) * np.min(data['Temperature'])
 
-# Create figure
-p = figure(title="Temperature Scatter Plot by Month", x_axis_label="Temperature", y_axis_label="Temperature2", width=1300, height=800,**jk9)
-
-# Store scatter renderers and legend items
-scatter_renderers = []
-# Plot each month separately
-for month in data['Month'].unique():
-    month_data = data[data['Month'] == month]
-    source = ColumnDataSource(month_data)
-    sc = p.scatter('Temperature', 'Temperature2', source=source, color=month_colors[month], size=5, alpha=0.7,legend_label=f"Month {month}")
-    scatter_renderers.append(sc)
-
-# Tooltip content
-tltl = """<i>Temperature:</i> <b>@Temperature</b> <br> <i>Temperature2:</i> <b>@Temperature2</b><br> <i>Month:</i> <b>@Month</b>"""
-p.add_tools(HoverTool(tooltips=hovfun(tltl), formatters={"@hidden": cusj()},mode="mouse",renderers = scatter_renderers))
-add_extras(p,cross=0);
-
-show(p)
-save_plot(p, 'scatter_03')
+show(p2)
+br.save_plot(p2, 'output/scatter_03')

@@ -1,4 +1,4 @@
-from butils import save_plot
+from bokeh_rocks import save_plot
 import numpy as np
 from bokeh.plotting import figure, show
 from bokeh.models import (

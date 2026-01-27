@@ -1,5 +1,4 @@
-
-from butils import *
+from bokeh_rocks import plot_country_choropleth, save_plot, show
 
 # Using new 2016 regions
 density_data = {
@@ -23,7 +22,7 @@ p = plot_country_choropleth(
     data_dict=density_data,
     value_col='density',
     country_name='🇫🇷 France',
-    palette=["#f7fbff", "#deebf7", "#c6dbef", "#9ecae1", "#6baed6", "#3182bd", "#08519c"],
+    palette=["#f7fbff", "#deebf7",  "#9ecae1", "#6baed6", "#3182bd", "#08519c"],
     bin_edges=[0, 70, 90, 110, 130, 160, 200, 1100],
     bin_labels=["<70", "70-90", "90-110", "110-130", "130-160", "160-200", "200+"],
     title="🇫🇷 France Population Density by Region (people/km²)",
@@ -32,7 +31,7 @@ p = plot_country_choropleth(
     tooltip_label='Population Density',
     value_format='{0}',
     width=900,
-    height=800, bg_color='#444444'
+    height=800, bg_color='#9c9a9a'
 )
 
 show(p)

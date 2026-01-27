@@ -1,6 +1,6 @@
-from butils import *
+from bokeh_rocks import *
 
 
-save_plot(diagram2, 'output/sankey_01')
+br.save_plot(diagram2, 'output/sankey_01')
 
 

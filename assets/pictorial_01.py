@@ -1,4 +1,4 @@
-from butils import save_plot
+from bokeh_rocks import save_plot
 from bokeh.plotting import figure, output_file, show
 from bokeh.models import ColumnDataSource
 import math

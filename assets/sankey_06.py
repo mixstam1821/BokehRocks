@@ -1,4 +1,4 @@
-from butils import *
+from bokeh_rocks import *
 traffic_flows = [
     {"source": "Google", "target": "Homepage", "value": 450},
     {"source": "Google", "target": "Blog", "value": 280},
@@ -13,6 +13,6 @@ traffic_flows = [
 
 diagram2 = create_sankey(traffic_flows, title="Website Traffic Sources (thousands) - Interactive")
 show(diagram2)
-save_plot(diagram2, 'output/sankey_01')
+save_plot(diagram2, 'output/sankey_06')
 
 

@@ -1,6 +1,8 @@
-from butils import *
+from bokeh_rocks import plot_surface_bokeh
 from bokeh.palettes import Turbo256
-
+import numpy as np
+import bokeh_rocks as br
+from bokeh.io import show
 # ============================================================
 # EXAMPLES
 # ============================================================
@@ -18,6 +20,6 @@ best_surfaces = [
 for idx, (func, name) in enumerate(best_surfaces, 1):
     plot = plot_surface_bokeh(func, title=f"Surface {idx}: {name}", cmap=Turbo256, output_path=f"surface_best_{idx}.html")
     show(plot)
-    save_plot(plot, 'output/surface3d_01')
+    br.save_plot(plot, 'output/surface3d_01')
 
 

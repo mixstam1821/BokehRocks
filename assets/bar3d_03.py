@@ -1,4 +1,4 @@
-from butils import *
+from bokeh_rocks import *
 
 
 products = ['Product A', 'Product B', 'Product C', 'Product D', 'Product E']

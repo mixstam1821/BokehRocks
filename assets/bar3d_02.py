@@ -1,4 +1,4 @@
-from butils import *
+from bokeh_rocks import *
 
 
 categories = ['Q1', 'Q2', 'Q3', 'Q4']
@@ -19,7 +19,7 @@ simple_chart = plot_3d_bars(
 )
 
 legend_simple = create_legend(labels_simple, colors_simple, dark_bg=False)
-layout_simple = row(simple_chart, legend_simple, stylesheets=[get_light_stylesheet()])
+layout_simple = row(simple_chart, legend_simple, stylesheets=[get_light_stylesheet_3d()])
 
 show(layout_simple)
 save_plot(layout_simple, 'output/bar3d_02')

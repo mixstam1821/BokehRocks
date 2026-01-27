@@ -1,5 +1,6 @@
-
-from butils import *
+from bokeh_rocks import plot_world_choropleth, save_plot
+from cartopy import crs as ccrs
+import requests
 
 # READ DATA
 pop_data = requests.get("https://raw.githubusercontent.com/mixstam1821/bokeh_showcases/refs/heads/main/assets0/pop2022.json").json()
@@ -36,7 +37,7 @@ for feature in world_geo['features']:
 # PLOT 1: Plate Carree Projection
 projection = ccrs.PlateCarree()
 projName = "Plate Carree"
-palette = ["#ffffb2", "#fed976", "#feb24c", "#fd8d3c", "#fc4e2a", "#e31a1c", "#bd0026", "#800026"]
+palette = ["#ffffb2", "#fed976",  "#fd8d3c", "#fc4e2a", "#e31a1c", "#bd0026", "#800026"]
 bin_edges = [0, 1e6, 5e6, 1e7, 5e7, 1e8, 5e8, 1e9, 2e9]
 bin_labels = ["<1M", "1–5M", "5–10M", "10–50M", "50–100M", "100–500M", "500M–1B", "1B+"]
 
@@ -48,6 +49,6 @@ p1 = plot_world_choropleth(world_geo, projection, projName,
                            use_natural_earth=True,
                            title="🌎 World Population 2022 ~ Plate Carree Projection",
                            legend_title='Population',
-                           tooltip_label='Population')
+                           tooltip_label='Population', oceanc='#f5f5f5',)
 
 save_plot(p1, "output/geo_01")

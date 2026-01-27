@@ -1,4 +1,5 @@
-from butils import *
+from bokeh_rocks import create_heatmap_figure, save_plot, show
+import numpy as np
 latitudes = np.linspace(-90, 90, 10)
 months = [f"M{i}" for i in range(1, 13)]
 ssr_data = np.round(np.random.uniform(100, 400, size=(len(latitudes), len(months))),0)

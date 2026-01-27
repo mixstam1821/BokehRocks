@@ -1,4 +1,4 @@
-from butils import hovfun, save_plot
+from bokeh_rocks import hovfun, save_plot
 from bokeh.plotting import figure, show
 from bokeh.models import LinearColorMapper, ColorBar, ColumnDataSource,HoverTool
 from bokeh.transform import transform

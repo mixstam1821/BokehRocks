@@ -1,24 +1,29 @@
-from butils import *
-
+import pandas as pd, numpy as np
+import bokeh_rocks as br
 np.random.seed(42)
-data = {
-    'Station': ['Station A', 'Station B', 'Station C', 'Station D'] * 60,
-    'Continent': ['Europe'] * 120 + ['Asia'] * 120,
-    'Temperature': np.concatenate([
-        np.random.normal(15, 5, 120),  # Europe temps
-        np.random.normal(25, 6, 120)   # Asia temps
-    ])
-}
-df = pd.DataFrame(data)
+df1 = pd.DataFrame(
+    {
+        "subject": np.repeat(["Math", "Science", "English", "History"], 50),
+        "score": np.concatenate(
+            [
+                np.random.normal(75, 10, 50),  # Math
+                np.random.normal(80, 8, 50),  # Science
+                np.random.normal(70, 12, 50),  # English
+                np.random.normal(78, 9, 50),  # History
+            ]
+        ),
+    }
+)
 
-# Define colors for continents
-continent_colors = {
-    'Europe': '#0096FF',   # Blue
-    'Asia': '#FFAC1C'      # Orange
-}
-
-p = fboxplot_basic(df, xcol='Station', ycol='Temperature', group_col='Continent',
-                   title="Temperature by Station and Continent", 
-                   palette=continent_colors,
-                   show_legend=True, tth=0, width=1000)
-save_plot(p, 'output/box_01')
+p1 = br.boxplot(
+    df1,
+    xcol="subject",
+    ycol="score",
+    title="Student Test Scores by Subject",
+    ylabel="Score (%)",
+    theme="light",
+    width=1000,
+    height=600,
+)
+p1.min_border_bottom = 140
+br.save_plot(p1, 'output/box_01')

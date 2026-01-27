@@ -1,4 +1,6 @@
-from butils import *
+from bokeh_rocks import plot_world_choropleth, save_plot, mbpal
+from cartopy import crs as ccrs
+import requests
 # Simulate GDP data (replace with real data from World Bank API or CSV)
 url = "https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/world-countries.json"
 world_geo_gdp = requests.get(url).json()
@@ -36,7 +38,7 @@ projName = 'Equal Earth'
 bin_edges = [0, 5000, 10000, 20000, 30000, 40000, 50000, 70000, 100000]
 bin_labels = ["<$5k", "$5-10k", "$10-20k", "$20-30k", "$30-40k", 
               "$40-50k", "$50-70k", "$70k+"]
-palette = ["#fff7ec", "#fee8c8", "#fdd49e", "#fdbb84", "#fc8d59", 
+palette = ["#fff7ec", "#fee8c8",  "#fdbb84", "#fc8d59", 
            "#ef6548", "#d7301f", "#990000"]
 
 p4 = plot_world_choropleth(world_geo_gdp, projection, projName,

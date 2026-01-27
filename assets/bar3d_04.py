@@ -1,4 +1,4 @@
-from butils import *
+from bokeh_rocks import *
 
 regions = ['North', 'South', 'East', 'West']
 segments = ['Enterprise', 'SMB', 'Consumer']
@@ -24,6 +24,6 @@ market_chart = plot_3d_stacked_bars(
 )
 
 legend_market = create_legend(segments, colors_segments, dark_bg=False)
-layout_market = row(market_chart, legend_market, stylesheets=[get_light_stylesheet()])
+layout_market = row(market_chart, legend_market, stylesheets=[get_light_stylesheet_3d()])
 show(layout_market)
 save_plot(layout_market, 'output/bar3d_04')

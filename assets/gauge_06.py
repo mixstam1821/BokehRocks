@@ -1,6 +1,8 @@
-from butils import *
 
-
+from bokeh_rocks import Gauge, show, save_plot
+from bokeh.models import CustomJS
+from bokeh.io import curdoc
+from bokeh.layouts import row
 
 gauge5 = Gauge(
     width=450, height=450,
@@ -65,10 +67,10 @@ car_simulation = CustomJS(args=dict(source=gauge5.source), code=f'''
         simulate();
     }}, 2000);
 ''')
-
+doc = curdoc()
 doc.js_on_event('document_ready', car_simulation)
 
-doc = curdoc()
+
 layout = row(gauge5.figure)
 doc.add_root(layout)
 doc.js_on_event('document_ready', car_simulation)

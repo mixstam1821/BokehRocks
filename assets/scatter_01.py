@@ -1,6 +1,4 @@
-from butils import *
-
-
+from bokeh_rocks import *
 from bokeh.plotting import figure, show
 from bokeh.io import output_notebook
 import numpy as np
@@ -23,6 +21,6 @@ sc = p.scatter('x', 'y', source=source, size=12, fill_color='colors', alpha=0.7,
 
 tltl = """<i>x:</i> <b>@x</b> <br> <i>y:</i> <b>@y</b>"""
 p.add_tools(HoverTool(tooltips=hovfun(tltl), formatters={"@hidden": cusj()},mode="mouse",renderers = [sc]))
-add_extras(p,cross=0);
+apply_theme(p,'dark')
 show(p)
-save_plot(p, 'scatter_01')
+save_plot(p, 'output/scatter_01')

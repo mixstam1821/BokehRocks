@@ -1,5 +1,9 @@
 
-from butils import *
+
+from bokeh_rocks import Gauge, show, save_plot
+from bokeh.models import CustomJS
+from bokeh.io import curdoc
+from bokeh.layouts import row
 
 battery_zones = [
     {"range": (0, 55), "color": "#DC143C", "label": "CRIT."},

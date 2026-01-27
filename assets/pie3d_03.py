@@ -1,4 +1,4 @@
-from butils import *
+from bokeh_rocks import *
 
 
 categories = ['R&D', 'Marketing', 'Operations', 'Sales', 'Admin']

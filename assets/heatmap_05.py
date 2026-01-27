@@ -1,4 +1,5 @@
-from butils import *
+from bokeh_rocks import create_heatmap_figure, save_plot, show
+import numpy as np
 
 latitudes = np.linspace(-90, 90, 9)
 months = [f"Month {m}" for m in range(1, 13)]

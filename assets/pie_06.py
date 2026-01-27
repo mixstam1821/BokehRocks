@@ -1,4 +1,5 @@
-from butils import *
+from bokeh_rocks import plot_rounded_annular_wedges, save_plot
+
 
 data3 = [7, 13, 15, 5, 3, 9]
 labels3 = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Weekend"]
@@ -10,4 +11,6 @@ p=plot_rounded_annular_wedges(
     corner_radius=0.08, gap_width=0.19,
     title="Weekly Activity",
 )
+p.background_fill_color = '#EBEBEB'
+p.border_fill_color = '#EBEBEB'
 save_plot(p, 'output/pie_06')

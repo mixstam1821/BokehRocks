@@ -1,4 +1,5 @@
-from butils import *
+from bokeh_rocks import create_heatmap_figure, save_plot, show
+import numpy as np
 
 labels = ['Very Low', 'Low', 'Medium', 'High', 'Very High']
 confusion = np.random.randint(0, 100, size=(5, 5))

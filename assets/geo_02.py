@@ -1,4 +1,6 @@
-from butils import *
+from bokeh_rocks import plot_world_population, save_plot, mbpal
+from cartopy import crs as ccrs
+import requests
 # READ DATA
 pop_data = requests.get("https://raw.githubusercontent.com/mixstam1821/bokeh_showcases/refs/heads/main/assets0/pop2022.json").json()
 url = "https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/world-countries.json"
@@ -29,12 +31,12 @@ projection = ccrs.Robinson(); projName = 'Robinson'           # Robinson project
 # projection = ccrs.Mollweide() ; projName = 'Mollweide'         # Mollweide projection  
 # projection = ccrs.EqualEarth(); projName = 'EqualEarth' 
 
-palette2 = ["yellow", "orange", "red", "purple", "darkred"]
+palette2 = mbpal('YlGn')
 bin_edges = [0, 1e6, 5e6, 1e7, 5e7, 1e8, 5e8, 1e9, 2e9]
 bin_labels = ["<1M", "1–5M", "5–10M", "10–50M", "50–100M", "100–500M", "500M–1B", "1B+"]
 
 p1 = plot_world_population(world_geo, projection, projName,
                       palette=palette2,
                       bin_labels=bin_labels,
-                      bin_edges=bin_edges)
+                      bin_edges=bin_edges,oceanc = '#929292' )
 save_plot(p1, "output/geo_02")

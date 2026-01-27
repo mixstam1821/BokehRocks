@@ -1,4 +1,5 @@
-from butils import *
+from bokeh_rocks import plot_country_choropleth, save_plot, show
+
 
 unemployment_data = {
     'Alabama': 3.0, 'Alaska': 4.7, 'Arizona': 3.6, 'Arkansas': 3.2,
@@ -21,7 +22,7 @@ p = plot_country_choropleth(
     data_dict=unemployment_data,
     value_col='unemployment',
     country_name='🇺🇸 USA',
-    palette=["#1a9850", "#91cf60", "#d9ef8b", "#fee08b", "#fc8d59", "#d73027"],
+    palette=["#1a9850", "#91cf60",  "#fee08b", "#fc8d59", "#d73027"],
     bin_edges=[0, 2.5, 3.0, 3.5, 4.0, 4.5, 6.0],
     bin_labels=["<2.5%", "2.5-3.0%", "3.0-3.5%", "3.5-4.0%", "4.0-4.5%", "4.5%+"],
     title="🇺🇸 US Unemployment Rate by State (2024 Annual Average)",

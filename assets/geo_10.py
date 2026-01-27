@@ -1,4 +1,5 @@
-from butils import *
+from bokeh_rocks import plot_country_choropleth, save_plot, show
+
 
 """
 Greek regions unemployment rate (2023)
@@ -27,7 +28,7 @@ p = plot_country_choropleth(
     data_dict=unemployment_data,
     value_col='unemployment',
     country_name='🇬🇷 Greece',
-    palette=["#1a9850", "#66bd63", "#a6d96a", "#d9ef8b", "#fee08b", "#fdae61", "#f46d43"],
+    palette= [ "#3A5A98",  "#A3BE8C", "#EBCB8B", "#D08770", "#BF616A" ],
     bin_edges=[0, 8, 10, 11, 12, 13, 15],
     bin_labels=["<8%", "8-10%", "10-11%", "11-12%", "12-13%", "13%+"],
     title="🇬🇷 Greece Unemployment Rate by Region (2023)",
@@ -36,7 +37,7 @@ p = plot_country_choropleth(
     tooltip_label='Unemployment',
     value_format='{0.1}%',
     width=1000,
-    height=1000,
+    height=750,
     bounds=(19.5, 34.5, 29.5, 42.0)  # Manual bounds for Greece
 )
 

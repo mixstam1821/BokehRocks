@@ -1,5 +1,5 @@
 
-from butils import *
+from bokeh_rocks import *
 products = ['Electronics', 'Clothing', 'Food', 'Home', 'Books', 'Sports']
 product_sales = [28, 22, 18, 15, 10, 7]
 colors4 = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c']
@@ -18,7 +18,7 @@ pie4 = plot_3d_pie(
     dark_bg=False
 )
 legend4 = create_legend(products, colors4, dark_bg=False)
-show(row(pie4, legend4, stylesheets=[get_light_stylesheet()]))
+show(row(pie4, legend4, stylesheets=[get_light_stylesheet_3d()]))
 
 
 regions = ['North America', 'Europe', 'Asia Pacific', 'Latin America']

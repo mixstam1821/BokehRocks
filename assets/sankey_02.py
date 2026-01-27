@@ -1,4 +1,4 @@
-from butils import *
+from bokeh_rocks import *
 flows_energy = [
     # 1990 -> 2000 (1990 totals: Coal=400, Oil=355, Natural Gas=210, Nuclear=65, Hydro=60, Renewables=10)
     [

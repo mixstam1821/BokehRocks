@@ -1,5 +1,6 @@
-from butils import *
-
+from bokeh_rocks import plot_country_choropleth, save_plot, show
+from bokeh.io import curdoc
+curdoc().theme = "light_minimal"
 # Regional GDP per capita 2018 (from Wikipedia/Greek statistics)
 gdp_data = {
     'Anatoliki Makedonia kai Thraki': 11.9,   # East Macedonia and Thrace
@@ -22,7 +23,7 @@ p = plot_country_choropleth(
     data_dict=gdp_data,
     value_col='gdp_per_capita',
     country_name='🇬🇷 Greece',
-    palette=["#fff7bc", "#fee391", "#fec44f", "#fe9929", "#ec7014", "#cc4c02", "#8c2d04"],
+    palette=["#fff7bc", "#fee391",  "#fe9929", "#ec7014", "#cc4c02", "#8c2d04"],
     bin_edges=[0, 12, 13, 14, 15, 17, 20, 25],
     bin_labels=["<€12k", "€12-13k", "€13-14k", "€14-15k", "€15-17k", "€17-20k", "€20k+"],
     title="🇬🇷 Greece GDP per Capita by Region (2018)",
@@ -31,8 +32,8 @@ p = plot_country_choropleth(
     tooltip_label='GDP per Capita',
     value_format='{€0.1}k',
     width=1000,
-    height=1000,
-    bounds=(19.5, 34.5, 29.5, 42.0),bg_color='#4b4b4b'
+    height=800,
+    bounds=(19.5, 34.5, 29.5, 42.0),bg_color='#acacac'
 )
 
 show(p)

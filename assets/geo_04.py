@@ -1,4 +1,6 @@
-from butils import *
+from bokeh_rocks import plot_world_choropleth, save_plot, mbpal
+from cartopy import crs as ccrs
+import requests
 url = "https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/world-countries.json"
 world_geo_life = requests.get(url).json()
 
@@ -40,7 +42,7 @@ p5 = plot_world_choropleth(world_geo_life, projection, projName,
                            tooltip_label='Life Expectancy (years)',
                            value_format='{0.0}',
                            width = 900,
-                           height = 800
+                           height = 750, oceanc='#d2ffc4',
                            )
 
 save_plot(p5, "output/geo_04")

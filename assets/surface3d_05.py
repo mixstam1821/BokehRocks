@@ -1,5 +1,7 @@
-from butils import *
-
+from bokeh_rocks import plot_surface_bokeh, mbpal
+import bokeh_rocks as br
+from bokeh.io import show
+import numpy as np
 # ============================================================
 # EXAMPLES
 # ============================================================
@@ -17,6 +19,6 @@ best_surfaces = [
 for idx, (func, name) in enumerate(best_surfaces, 1):
     plot = plot_surface_bokeh(func, title=f"Surface {idx}: {name}", cmap=mbpal('cool'), output_path=f"surface_best_{idx}.html")
     show(plot)
-    save_plot(plot, 'output/surface3d_05')
+    br.save_plot(plot, 'output/surface3d_05')
 
 

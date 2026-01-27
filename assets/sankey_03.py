@@ -1,4 +1,4 @@
-from butils import *
+from bokeh_rocks import *
 
 flows_college = [
     # Freshman -> Sophomore (Freshman totals: Undecided=250, Engineering=170, Business=95, Sciences=85, Liberal Arts=85, CS=110)

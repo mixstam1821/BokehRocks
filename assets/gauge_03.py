@@ -1,5 +1,8 @@
+from bokeh_rocks import Gauge, show, save_plot
+from bokeh.models import CustomJS
+from bokeh.io import curdoc
+from bokeh.layouts import row
 
-from butils import *
 gauge1 = Gauge(
     width=450, height=450,
     title="System Performance",
