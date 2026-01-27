@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Bokeh Plot</title>
+    <style>
+      html, body {
+        box-sizing: border-box;
+        display: flow-root;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-3.8.2.min.js"></script>
+<script type="text/javascript">
+Bokeh.set_log_level("info");
+</script>
+  </head>
+  <body>
+    <div id="dfc2f1ec-8432-40f2-9605-e8c7ee04e004" data-root-id="p1031" style="display: contents;"></div>
+  
+    <script type="application/json" id="d032c3e0-b1b6-4f6a-9b72-b9356d40421e">
+      {"f7b4b9cd-5cb9-4f37-88af-80f68335cc21":{"version":"3.8.2","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"p1083","attributes":{"notifications":{"type":"object","name":"Notifications","id":"p1084"}}},"roots":[{"type":"object","name":"Figure","id":"p1031","attributes":{"width":700,"height":500,"x_range":{"type":"object","name":"Range1d","id":"p1041","attributes":{"start":-15000000,"end":15000000}},"y_range":{"type":"object","name":"Range1d","id":"p1042","attributes":{"start":-8000000,"end":10000000}},"x_scale":{"type":"object","name":"LinearScale","id":"p1043"},"y_scale":{"type":"object","name":"LinearScale","id":"p1044"},"title":{"type":"object","name":"Title","id":"p1034","attributes":{"text":"Major World Cities by Population"}},"renderers":[{"type":"object","name":"TileRenderer","id":"p1069","attributes":{"tile_source":{"type":"object","name":"WMTSTileSource","id":"p1068","attributes":{"url":"https://tile.openstreetmap.org/{z}/{x}/{y}.png","max_zoom":19,"attribution":"&amp;copy; &lt;a href=\"https://www.openstreetmap.org/copyright\"&gt;OpenStreetMap&lt;/a&gt; contributors"}}}},{"type":"object","name":"GlyphRenderer","id":"p1077","attributes":{"data_source":{"type":"object","name":"ColumnDataSource","id":"p1028","attributes":{"selected":{"type":"object","name":"Selection","id":"p1029","attributes":{"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1030"},"data":{"type":"map","entries":[["x",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAC/wFQAK//LNcUjzltX8F46hjCUMnLwIbEHwm5pm1BHqJ35IENcEGizXDNhs1TwcVdER2R8l5BQyb6G0uHSkHIOGOmrfYPQeIfw49Zt2hB5gMnjykbacE09qM8UAAAAA=="},"shape":[10],"dtype":"float64","order":"little"}],["y",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAC/wFQAK//ZKsQ5ZX1UkEgB3CePZpZQaacaX5nPFBBfvnaUl+aTsFQQ2O69JZEwZd5dt1WgkBBqxnhKQXGSkEj6l4WEdhXQVTNoKhPglJB7MzhrnLKTkE9H6gNUAAAAA=="},"shape":[10],"dtype":"float64","order":"little"}],["name",["New York","London","Tokyo","Sydney","S\u00e3o Paulo","Mumbai","Cairo","Paris","Beijing","Los Angeles"]],["population",[8.3,9.0,13.9,5.3,12.3,20.4,9.5,2.2,21.5,4.0]],["lat",[40.7128,51.5074,35.6762,-33.8688,-23.5505,19.076,30.0444,48.8566,39.9042,34.0522]],["lon",[-74.006,-0.1278,139.6503,151.2093,-46.6333,72.8777,31.2357,2.3522,116.4074,-118.2437]]]}}},"view":{"type":"object","name":"CDSView","id":"p1078","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1079"}}},"glyph":{"type":"object","name":"Scatter","id":"p1074","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"size":{"type":"field","field":"population"},"line_color":{"type":"value","value":"darkred"},"line_width":{"type":"value","value":2},"fill_color":{"type":"value","value":"red"},"fill_alpha":{"type":"value","value":0.6}}},"nonselection_glyph":{"type":"object","name":"Scatter","id":"p1075","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"size":{"type":"field","field":"population"},"line_color":{"type":"value","value":"darkred"},"line_alpha":{"type":"value","value":0.1},"line_width":{"type":"value","value":2},"fill_color":{"type":"value","value":"red"},"fill_alpha":{"type":"value","value":0.1},"hatch_alpha":{"type":"value","value":0.1}}},"muted_glyph":{"type":"object","name":"Scatter","id":"p1076","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"size":{"type":"field","field":"population"},"line_color":{"type":"value","value":"darkred"},"line_alpha":{"type":"value","value":0.2},"line_width":{"type":"value","value":2},"fill_color":{"type":"value","value":"red"},"fill_alpha":{"type":"value","value":0.2},"hatch_alpha":{"type":"value","value":0.2}}}}}],"toolbar":{"type":"object","name":"Toolbar","id":"p1040","attributes":{"tools":[{"type":"object","name":"PanTool","id":"p1055"},{"type":"object","name":"WheelZoomTool","id":"p1056","attributes":{"renderers":"auto"}},{"type":"object","name":"BoxZoomTool","id":"p1057","attributes":{"dimensions":"both","overlay":{"type":"object","name":"BoxAnnotation","id":"p1058","attributes":{"syncable":false,"line_color":"black","line_alpha":1.0,"line_width":2,"line_dash":[4,4],"fill_color":"lightgrey","fill_alpha":0.5,"level":"overlay","visible":false,"left":{"type":"number","value":"nan"},"right":{"type":"number","value":"nan"},"top":{"type":"number","value":"nan"},"bottom":{"type":"number","value":"nan"},"left_units":"canvas","right_units":"canvas","top_units":"canvas","bottom_units":"canvas","handles":{"type":"object","name":"BoxInteractionHandles","id":"p1064","attributes":{"all":{"type":"object","name":"AreaVisuals","id":"p1063","attributes":{"fill_color":"white","hover_fill_color":"lightgray"}}}}}}}},{"type":"object","name":"SaveTool","id":"p1065"},{"type":"object","name":"ResetTool","id":"p1066"},{"type":"object","name":"HelpTool","id":"p1067"},{"type":"object","name":"HoverTool","id":"p1080","attributes":{"renderers":"auto","tooltips":[["City","@name"],["Population","@population"],["lat","@lat"],["lon","@lon"]],"sort_by":null}}]}},"left":[{"type":"object","name":"MercatorAxis","id":"p1050","attributes":{"ticker":{"type":"object","name":"MercatorTicker","id":"p1051","attributes":{"mantissas":[1,2,5],"dimension":"lat"}},"formatter":{"type":"object","name":"MercatorTickFormatter","id":"p1052","attributes":{"dimension":"lat"}},"major_label_policy":{"type":"object","name":"AllLabels","id":"p1053"}}}],"below":[{"type":"object","name":"MercatorAxis","id":"p1045","attributes":{"ticker":{"type":"object","name":"MercatorTicker","id":"p1046","attributes":{"mantissas":[1,2,5],"dimension":"lon"}},"formatter":{"type":"object","name":"MercatorTickFormatter","id":"p1047","attributes":{"dimension":"lon"}},"major_label_policy":{"type":"object","name":"AllLabels","id":"p1048"}}}],"center":[{"type":"object","name":"Grid","id":"p1049","attributes":{"axis":{"id":"p1045"}}},{"type":"object","name":"Grid","id":"p1054","attributes":{"dimension":1,"axis":{"id":"p1050"}}}]}}]}}
+    </script>
+    <script type="text/javascript">
+      (function() {
+        const fn = function() {
+          Bokeh.safely(function() {
+            (function(root) {
+              function embed_document(root) {
+              const docs_json = document.getElementById('d032c3e0-b1b6-4f6a-9b72-b9356d40421e').textContent;
+              const render_items = [{"docid":"f7b4b9cd-5cb9-4f37-88af-80f68335cc21","roots":{"p1031":"dfc2f1ec-8432-40f2-9605-e8c7ee04e004"},"root_ids":["p1031"]}];
+              root.Bokeh.embed.embed_items(docs_json, render_items);
+              }
+              if (root.Bokeh !== undefined) {
+                embed_document(root);
+              } else {
+                let attempts = 0;
+                const timer = setInterval(function(root) {
+                  if (root.Bokeh !== undefined) {
+                    clearInterval(timer);
+                    embed_document(root);
+                  } else {
+                    attempts++;
+                    if (attempts > 100) {
+                      clearInterval(timer);
+                      console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                    }
+                  }
+                }, 10, root)
+              }
+            })(window);
+          });
+        };
+        if (document.readyState != "loading") fn();
+        else document.addEventListener("DOMContentLoaded", fn);
+      })();
+    </script>
+  </body>
+</html>
