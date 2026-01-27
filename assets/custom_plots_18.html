@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Bokeh Plot</title>
+    <style>
+      html, body {
+        box-sizing: border-box;
+        display: flow-root;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-3.8.2.min.js"></script>
+<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.8.2.min.js"></script>
+<script type="text/javascript">
+Bokeh.set_log_level("info");
+</script>
+  </head>
+  <body>
+    <div id="e605b036-4ce8-48c7-8305-6175acb449f1" data-root-id="p1189" style="display: contents;"></div>
+  
+    <script type="application/json" id="e475598f-a40d-4540-961f-877184d4fca0">
+      {"3af1aaaa-dcf0-45cc-9983-8d81709339ca":{"version":"3.8.2","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"p1192","attributes":{"notifications":{"type":"object","name":"Notifications","id":"p1193"}}},"roots":[{"type":"object","name":"Column","id":"p1189","attributes":{"sizing_mode":"scale_width","children":[{"type":"object","name":"Row","id":"p1188","attributes":{"children":[{"type":"object","name":"Button","id":"p1185","attributes":{"button_type":"primary","js_event_callbacks":{"type":"map","entries":[["button_click",[{"type":"object","name":"CustomJS","id":"p1187","attributes":{"args":{"type":"map","entries":[["source",{"type":"object","name":"ColumnDataSource","id":"p1142","attributes":{"selected":{"type":"object","name":"Selection","id":"p1143","attributes":{"js_property_callbacks":{"type":"map","entries":[["change:indices",[{"type":"object","name":"CustomJS","id":"p1186","attributes":{"args":{"type":"map","entries":[["source",{"id":"p1142"}],["nav_source",{"type":"object","name":"ColumnDataSource","id":"p1145","attributes":{"selected":{"type":"object","name":"Selection","id":"p1146","attributes":{"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1147"},"data":{"type":"map","entries":[["stack",[]]]}}}],["back_button",{"id":"p1185"}],["p",{"type":"object","name":"Figure","id":"p1151","attributes":{"height":450,"x_range":{"type":"object","name":"FactorRange","id":"p1161","attributes":{"factors":["Europe","America","Asia","Australia"]}},"y_range":{"type":"object","name":"DataRange1d","id":"p1153","attributes":{"start":0}},"x_scale":{"type":"object","name":"CategoricalScale","id":"p1162"},"y_scale":{"type":"object","name":"LinearScale","id":"p1163"},"title":{"type":"object","name":"Title","id":"p1154","attributes":{"text":"Population by Continent","text_font_size":"20pt"}},"renderers":[{"type":"object","name":"GlyphRenderer","id":"p1182","attributes":{"data_source":{"id":"p1142"},"view":{"type":"object","name":"CDSView","id":"p1183","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1184"}}},"glyph":{"type":"object","name":"VBar","id":"p1178","attributes":{"x":{"type":"field","field":"x"},"width":{"type":"value","value":0.6},"top":{"type":"field","field":"top"},"line_color":{"type":"value","value":"white"},"fill_color":{"type":"value","value":"#6baed6"}}},"selection_glyph":null,"nonselection_glyph":{"id":"p1178"},"hover_glyph":{"type":"object","name":"VBar","id":"p1180","attributes":{"x":{"type":"field","field":"x"},"width":{"type":"value","value":0.6},"top":{"type":"field","field":"top"},"line_color":{"type":"value","value":"white"},"fill_color":{"type":"value","value":"#2171b5"}}},"muted_glyph":{"type":"object","name":"VBar","id":"p1181","attributes":{"x":{"type":"field","field":"x"},"width":{"type":"value","value":0.6},"top":{"type":"field","field":"top"},"line_color":{"type":"value","value":"white"},"line_alpha":{"type":"value","value":0.2},"fill_color":{"type":"value","value":"#6baed6"},"fill_alpha":{"type":"value","value":0.2},"hatch_alpha":{"type":"value","value":0.2}}}}}],"toolbar":{"type":"object","name":"Toolbar","id":"p1160","attributes":{"tools":[{"type":"object","name":"TapTool","id":"p1174","attributes":{"renderers":"auto"}}]}},"toolbar_location":null,"left":[{"type":"object","name":"LinearAxis","id":"p1169","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1170","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1171"},"major_label_policy":{"type":"object","name":"AllLabels","id":"p1172"},"major_label_text_font_size":"14pt"}}],"below":[{"type":"object","name":"CategoricalAxis","id":"p1164","attributes":{"ticker":{"type":"object","name":"CategoricalTicker","id":"p1165"},"formatter":{"type":"object","name":"CategoricalTickFormatter","id":"p1166"},"major_label_policy":{"type":"object","name":"AllLabels","id":"p1167"},"major_label_text_font_size":"14pt"}}],"center":[{"type":"object","name":"Grid","id":"p1168","attributes":{"axis":{"id":"p1164"},"grid_line_color":null}},{"type":"object","name":"Grid","id":"p1173","attributes":{"dimension":1,"axis":{"id":"p1169"},"grid_line_dash":[2,4]}}]}}],["continent_data",{"type":"object","name":"ColumnDataSource","id":"p1148","attributes":{"selected":{"type":"object","name":"Selection","id":"p1149","attributes":{"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1150"},"data":{"type":"map","entries":[["names",["Europe","America","Asia","Australia"]],["values",[750,1000,4600,40]]]}}}],["country_data",{"type":"map","entries":[["Europe",{"type":"map","entries":[["names",["Germany","France","UK","Italy","Spain"]],["values",[83,65,67,60,47]]]}],["America",{"type":"map","entries":[["names",["USA","Brazil","Mexico","Canada"]],["values",[331,213,128,38]]]}],["Asia",{"type":"map","entries":[["names",["China","India","Japan","Indonesia"]],["values",[1440,1390,126,276]]]}],["Australia",{"type":"map","entries":[["names",["Australia"]],["values",[26]]]}]]}],["city_data",{"type":"map","entries":[["Germany",{"type":"map","entries":[["names",["Berlin","Hamburg","Munich"]],["values",[3.6,1.8,1.5]]]}],["France",{"type":"map","entries":[["names",["Paris","Marseille","Lyon"]],["values",[2.1,0.9,0.5]]]}],["UK",{"type":"map","entries":[["names",["London","Manchester","Birmingham"]],["values",[9.0,0.5,1.1]]]}],["Italy",{"type":"map","entries":[["names",["Rome","Milan","Naples"]],["values",[2.8,1.4,1.0]]]}],["Spain",{"type":"map","entries":[["names",["Madrid","Barcelona","Valencia"]],["values",[3.2,1.6,0.8]]]}],["USA",{"type":"map","entries":[["names",["New York","Los Angeles","Chicago"]],["values",[8.4,4.0,2.7]]]}],["Brazil",{"type":"map","entries":[["names",["Sao Paulo","Rio de Janeiro","Brasilia"]],["values",[12.3,6.7,3.1]]]}],["Mexico",{"type":"map","entries":[["names",["Mexico City","Guadalajara","Monterrey"]],["values",[9.2,1.5,1.1]]]}],["Canada",{"type":"map","entries":[["names",["Toronto","Vancouver","Montreal"]],["values",[2.9,0.6,1.7]]]}],["China",{"type":"map","entries":[["names",["Beijing","Shanghai","Guangzhou"]],["values",[21.5,24.2,15.3]]]}],["India",{"type":"map","entries":[["names",["Mumbai","Delhi","Bangalore"]],["values",[20.7,32.0,12.3]]]}],["Japan",{"type":"map","entries":[["names",["Tokyo","Osaka","Nagoya"]],["values",[37.4,19.2,9.5]]]}],["Indonesia",{"type":"map","entries":[["names",["Jakarta","Surabaya","Bandung"]],["values",[10.5,2.8,2.4]]]}],["Australia",{"type":"map","entries":[["names",["Sydney","Melbourne","Brisbane"]],["values",[5.3,5.0,2.5]]]}]]}]]},"code":"\n    const indices = source.selected.indices;\n    if (indices.length === 0) return;\n\n    const clicked = source.data['x'][indices[0]];\n    const stack = nav_source.data['stack'];\n\n    const continents = continent_data.data['names'];\n    const continent_values = continent_data.data['values'];\n\n    if (stack.length === 0) {\n        // Currently at Continent level, drill to Country\n        const country_info = country_data[clicked];\n        if (country_info) {\n            source.data['x'] = country_info['names'];\n            source.data['top'] = country_info['values'];\n            p.x_range.factors = country_info['names'];\n            p.title.text = 'Population of ' + clicked;\n            stack.push(clicked);\n            nav_source.data['stack'] = stack;\n            back_button.visible = true;\n            source.change.emit();\n            nav_source.change.emit();\n        }\n    } else if (stack.length === 1) {\n        // Currently at Country level, drill to City\n        const city_info = city_data[clicked];\n        if (city_info) {\n            source.data['x'] = city_info['names'];\n            source.data['top'] = city_info['values'];\n            p.x_range.factors = city_info['names'];\n            p.title.text = 'Population of ' + clicked;\n            stack.push(clicked);\n            nav_source.data['stack'] = stack;\n            source.change.emit();\n            nav_source.change.emit();\n        }\n    }\n\n    // Clear selection\n    source.selected.indices = [];\n"}}]]]},"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1144"},"data":{"type":"map","entries":[["x",["Europe","America","Asia","Australia"]],["top",[750,1000,4600,40]]]}}}],["nav_source",{"id":"p1145"}],["back_button",{"id":"p1185"}],["p",{"id":"p1151"}],["continent_data",{"id":"p1148"}],["country_data",{"type":"map","entries":[["Europe",{"type":"map","entries":[["names",["Germany","France","UK","Italy","Spain"]],["values",[83,65,67,60,47]]]}],["America",{"type":"map","entries":[["names",["USA","Brazil","Mexico","Canada"]],["values",[331,213,128,38]]]}],["Asia",{"type":"map","entries":[["names",["China","India","Japan","Indonesia"]],["values",[1440,1390,126,276]]]}],["Australia",{"type":"map","entries":[["names",["Australia"]],["values",[26]]]}]]}]]},"code":"\n    const stack = nav_source.data['stack'];\n\n    const continents = continent_data.data['names'];\n    const continent_values = continent_data.data['values'];\n\n    if (stack.length === 2) {\n        // From City level back to Country level\n        const continent = stack[0];\n        const country_info = country_data[continent];\n        source.data['x'] = country_info['names'];\n        source.data['top'] = country_info['values'];\n        p.x_range.factors = country_info['names'];\n        p.title.text = 'Population of ' + continent;\n        stack.pop();\n        nav_source.data['stack'] = stack;\n        source.change.emit();\n        nav_source.change.emit();\n    } else if (stack.length === 1) {\n        // From Country level back to Continent level\n        source.data['x'] = continents;\n        source.data['top'] = continent_values;\n        p.x_range.factors = continents;\n        p.title.text = 'Population by Continent';\n        stack.pop();\n        nav_source.data['stack'] = stack;\n        back_button.visible = false;\n        source.change.emit();\n        nav_source.change.emit();\n    }\n"}}]]]},"visible":false,"width":100,"label":"\u2190 Go Back"}}]}},{"id":"p1151"}]}}]}}
+    </script>
+    <script type="text/javascript">
+      (function() {
+        const fn = function() {
+          Bokeh.safely(function() {
+            (function(root) {
+              function embed_document(root) {
+              const docs_json = document.getElementById('e475598f-a40d-4540-961f-877184d4fca0').textContent;
+              const render_items = [{"docid":"3af1aaaa-dcf0-45cc-9983-8d81709339ca","roots":{"p1189":"e605b036-4ce8-48c7-8305-6175acb449f1"},"root_ids":["p1189"]}];
+              root.Bokeh.embed.embed_items(docs_json, render_items);
+              }
+              if (root.Bokeh !== undefined) {
+                embed_document(root);
+              } else {
+                let attempts = 0;
+                const timer = setInterval(function(root) {
+                  if (root.Bokeh !== undefined) {
+                    clearInterval(timer);
+                    embed_document(root);
+                  } else {
+                    attempts++;
+                    if (attempts > 100) {
+                      clearInterval(timer);
+                      console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                    }
+                  }
+                }, 10, root)
+              }
+            })(window);
+          });
+        };
+        if (document.readyState != "loading") fn();
+        else document.addEventListener("DOMContentLoaded", fn);
+      })();
+    </script>
+  </body>
+</html>

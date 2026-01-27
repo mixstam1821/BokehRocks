@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Bokeh Plot</title>
+    <style>
+      html, body {
+        box-sizing: border-box;
+        display: flow-root;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-3.8.2.min.js"></script>
+<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.8.2.min.js"></script>
+<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.8.2.min.js"></script>
+<script type="text/javascript">
+Bokeh.set_log_level("info");
+</script>
+  </head>
+  <body>
+    <div id="cafc86cc-b5e2-4ea6-ad90-e4bc44683bfe" data-root-id="p1258" style="display: contents;"></div>
+  
+    <script type="application/json" id="fb2987e1-f5fb-4e07-8d69-c513acb70675">
+      {"f338acbf-d09a-4dbf-873a-74cfcb30faf8":{"version":"3.8.2","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"p1273","attributes":{"notifications":{"type":"object","name":"Notifications","id":"p1274"}}},"roots":[{"type":"object","name":"DataTable","id":"p1258","attributes":{"stylesheets":[{"type":"object","name":"InlineStyleSheet","id":"p1257","attributes":{"css":"\n/* Container styling */\n:host {\n    background: #2e2e30 !important;\n    border-radius: 14px !important;\n    padding: 16px !important;\n    box-shadow: 0 4px 18px #0006 !important;\n    margin: 10px !important;\n}\n\n/* Headers */\n:host div[class*=\"header\"],\n:host div[class*=\"slick-header\"],\n:host th,\n:host [class*=\"header\"] {\n    background: #2e2e30 !important;\n    color: #34ffe0 !important;\n    font-weight: bold !important;\n    font-family: 'Fira Code', monospace !important;\n    border-bottom: 1px solid #06b6d4 !important;\n}\n\n/* cells */\n:host div[class*=\"cell\"],\n:host div[class*=\"slick-cell\"],\n:host td {\n    background: #565755 !important;\n    color: #ef5f5f !important;\n    border-right: 1px solid #908e8e !important;\n    border-bottom: 1px solid #908e8e !important;\n    font-family: 'Fira Code', monospace !important;\n    font-size: 1.2em !important;\n\n}\n\n/* Alternating rows */\n:host div[class*=\"row\"]:nth-child(even) div[class*=\"cell\"],\n:host div[class*=\"slick-row\"]:nth-child(even) div[class*=\"slick-cell\"],\n:host tr:nth-child(even) td {\n    background: #2a2a2c !important;\n    color: #ffb907 !important;\n    border-right: 1px solid #908e8e !important;\n    border-bottom: 1px solid #908e8e !important;\n    font-family: 'Fira Code', monospace !important;\n    font-size: 0.9em !important;\n}\n\n/* Hover effects */\n:host div[class*=\"row\"]:hover div[class*=\"cell\"],\n:host div[class*=\"slick-row\"]:hover div[class*=\"slick-cell\"],\n:host tr:hover td {\n    background: #3eafff !important;\n    color: #0c0c0c !important;\n    border-color: #ff0000 !important;\n    border-style: solid !important;\n    border-width: 1px !important;\n}\n\n/* Selected cells */\n:host div[class*=\"slick-cell\"][class*=\"selected\"],\n:host div[class*=\"cell\"][class*=\"selected\"] {\n    background: pink !important;\n    color: red !important;\n    border: 1px solid #ff1493 !important;\n}\n\n/* Selected cells */\n:host div[class*=\"row\"]:nth-child(even) div[class*=\"cell\"][class*=\"selected\"],\n:host div[class*=\"slick-row\"]:nth-child(even) div[class*=\"slick-cell\"][class*=\"selected\"]{\n    background: pink !important;\n    color: black !important;\n    border: 1px solid #ff1493 !important;\n}\n\n/* Scrollbars */\n:host *::-webkit-scrollbar {\n    width: 9px !important;\n    height: 8px !important;\n    background: #1a1a2e !important;\n}\n:host *::-webkit-scrollbar-thumb {\n    background: #06b6d4 !important;\n    border-radius: 4px !important;\n}\n:host *::-webkit-scrollbar-track {\n    background: #1c2e1a !important;\n    border-radius: 4px !important;\n}\n/* Firefox scrollbars */\n:host .bk-data-table {\n    scrollbar-color: #06b6d4 #1c2e1a !important;\n    scrollbar-width: thin !important;\n}\n\n/* But restore specific dark backgrounds where needed */\n:host div[class*=\"header\"] * {\n    background-color: #1a1a2e !important;\n}\n\n:host [class*=\"header\"] * {\n    color: #34ffe0 !important;\n}\n"}}],"width":500,"height":450,"source":{"type":"object","name":"ColumnDataSource","id":"p1245","attributes":{"selected":{"type":"object","name":"Selection","id":"p1246","attributes":{"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1247"},"data":{"type":"map","entries":[["index",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAC/w3DhQ3AMAAAoM7d3f5/c5AQQgiRsYmpmbmFpZW1ja2dvYOjk7OLq5u7h6eXt4+vnz9wiOYbeAAAAA=="},"shape":[30],"dtype":"int32","order":"little"}],["Year",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAC/w3D1RGDUAAAsPfH/puhRYoUl8IOJHeJoxASUzNzCz+WVtY2fm3t7B38OTo5u7i6uXt4evn39vEF8J8S/XgAAAA="},"shape":[30],"dtype":"int32","order":"little"}],["Value",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAC/+s/9FUjhl/bYdZMEFB1eBO4Q671tbrDN42Y/kNfdRyqRda5P6yCyksqOJw9AwLqDmlgoOwAlp6i7LCkwJbr+mJVKF/FIQhkzEVNB6AgUEYdao6Kg8fDKpF1x1UdwMLhqhDxX5oOIFkRPWWHw0Dn9DvBzFFw6Ae5r1/YQb71deCOeWoQd5WqQ81VhKgT0XWIASuUgZqjAjUH6i5lLQeQte4PNR0A/g7IgPAAAAA="},"shape":[30],"dtype":"float64","order":"little"}],["Anomaly",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAC/zM2BoHD9kE75FpfB96wrxZZ5/6w6s1+ECmy7v/+NDC4th8ifsQeIv7ZHqzN+LP9N42Y/kNfb+yH8C/vP3sGBD7sBxu349t+kKxGzG+o/H+oPQ/2a4Il7uxnAIMv+yHmvLA//BXE+LkfZIv7w1NQ895A5W/A9UPkP0HtmbcfRMq13rZ/A6Jeb4S677I9xJ4n+7muLy6w5bq+HwA0JMCQ8AAAAA=="},"shape":[30],"dtype":"float64","order":"little"}]]}}},"view":{"type":"object","name":"CDSView","id":"p1262","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1263"}}},"columns":[{"type":"object","name":"TableColumn","id":"p1248","attributes":{"field":"Year","title":"Year","formatter":{"type":"object","name":"StringFormatter","id":"p1249"},"editor":{"type":"object","name":"StringEditor","id":"p1250"}}},{"type":"object","name":"TableColumn","id":"p1251","attributes":{"field":"Value","title":"Value","formatter":{"type":"object","name":"StringFormatter","id":"p1252"},"editor":{"type":"object","name":"StringEditor","id":"p1253"}}},{"type":"object","name":"TableColumn","id":"p1254","attributes":{"field":"Anomaly","title":"Anomaly","formatter":{"type":"object","name":"StringFormatter","id":"p1255"},"editor":{"type":"object","name":"StringEditor","id":"p1256"}}}],"editable":true,"row_height":21}}]}}
+    </script>
+    <script type="text/javascript">
+      (function() {
+        const fn = function() {
+          Bokeh.safely(function() {
+            (function(root) {
+              function embed_document(root) {
+              const docs_json = document.getElementById('fb2987e1-f5fb-4e07-8d69-c513acb70675').textContent;
+              const render_items = [{"docid":"f338acbf-d09a-4dbf-873a-74cfcb30faf8","roots":{"p1258":"cafc86cc-b5e2-4ea6-ad90-e4bc44683bfe"},"root_ids":["p1258"]}];
+              root.Bokeh.embed.embed_items(docs_json, render_items);
+              }
+              if (root.Bokeh !== undefined) {
+                embed_document(root);
+              } else {
+                let attempts = 0;
+                const timer = setInterval(function(root) {
+                  if (root.Bokeh !== undefined) {
+                    clearInterval(timer);
+                    embed_document(root);
+                  } else {
+                    attempts++;
+                    if (attempts > 100) {
+                      clearInterval(timer);
+                      console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                    }
+                  }
+                }, 10, root)
+              }
+            })(window);
+          });
+        };
+        if (document.readyState != "loading") fn();
+        else document.addEventListener("DOMContentLoaded", fn);
+      })();
+    </script>
+  </body>
+</html>

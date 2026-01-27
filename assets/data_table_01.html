@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Bokeh Plot</title>
+    <style>
+      html, body {
+        box-sizing: border-box;
+        display: flow-root;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-3.8.2.min.js"></script>
+<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.8.2.min.js"></script>
+<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.8.2.min.js"></script>
+<script type="text/javascript">
+Bokeh.set_log_level("info");
+</script>
+  </head>
+  <body>
+    <div id="e655cba1-2d59-4d94-bb1d-dd5daea1bf6f" data-root-id="p1230" style="display: contents;"></div>
+  
+    <script type="application/json" id="e67ccb8f-4596-4d29-9d09-4d1e1eded023">
+      {"a1de6244-2ca7-4da4-b6fd-276e671f8f15":{"version":"3.8.2","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"p1237","attributes":{"notifications":{"type":"object","name":"Notifications","id":"p1238"}}},"roots":[{"type":"object","name":"DataTable","id":"p1230","attributes":{"stylesheets":[{"type":"object","name":"InlineStyleSheet","id":"p1236","attributes":{"css":"\n    .slick-header-columns {\n        background-color: #bee8ff !important;\n        font-family: arial;\n        font-weight: bold;\n        font-size: 16pt;\n        color: #1d1c1c;\n        text-align: right;\n    }\n    .slick-row {\n        font-size: 14pt;\n        font-family: arial;\n        text-align: right;\n    }\n"}}],"width":400,"height":280,"source":{"type":"object","name":"ColumnDataSource","id":"p1220","attributes":{"selected":{"type":"object","name":"Selection","id":"p1221","attributes":{"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1222"},"data":{"type":"map","entries":[["dates",["2014-03-01","2014-03-02","2014-03-03","2014-03-04","2014-03-05","2014-03-06","2014-03-07","2014-03-08","2014-03-09","2014-03-10"]],["downloads",[26,90,55,86,55,81,38,42,12,80]]]}}},"view":{"type":"object","name":"CDSView","id":"p1234","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1235"}}},"columns":[{"type":"object","name":"TableColumn","id":"p1224","attributes":{"field":"dates","title":"Date","formatter":{"type":"object","name":"DateFormatter","id":"p1223"},"editor":{"type":"object","name":"StringEditor","id":"p1226"}}},{"type":"object","name":"TableColumn","id":"p1227","attributes":{"field":"downloads","title":"Downloads","formatter":{"type":"object","name":"StringFormatter","id":"p1228"},"editor":{"type":"object","name":"StringEditor","id":"p1229"}}}]}}]}}
+    </script>
+    <script type="text/javascript">
+      (function() {
+        const fn = function() {
+          Bokeh.safely(function() {
+            (function(root) {
+              function embed_document(root) {
+              const docs_json = document.getElementById('e67ccb8f-4596-4d29-9d09-4d1e1eded023').textContent;
+              const render_items = [{"docid":"a1de6244-2ca7-4da4-b6fd-276e671f8f15","roots":{"p1230":"e655cba1-2d59-4d94-bb1d-dd5daea1bf6f"},"root_ids":["p1230"]}];
+              root.Bokeh.embed.embed_items(docs_json, render_items);
+              }
+              if (root.Bokeh !== undefined) {
+                embed_document(root);
+              } else {
+                let attempts = 0;
+                const timer = setInterval(function(root) {
+                  if (root.Bokeh !== undefined) {
+                    clearInterval(timer);
+                    embed_document(root);
+                  } else {
+                    attempts++;
+                    if (attempts > 100) {
+                      clearInterval(timer);
+                      console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                    }
+                  }
+                }, 10, root)
+              }
+            })(window);
+          });
+        };
+        if (document.readyState != "loading") fn();
+        else document.addEventListener("DOMContentLoaded", fn);
+      })();
+    </script>
+  </body>
+</html>

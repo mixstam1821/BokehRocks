@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Bokeh Plot</title>
+    <style>
+      html, body {
+        box-sizing: border-box;
+        display: flow-root;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-3.8.2.min.js"></script>
+<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.8.2.min.js"></script>
+<script type="text/javascript">
+Bokeh.set_log_level("info");
+</script>
+  </head>
+  <body>
+    <div id="d7ea3431-c82b-46c8-a19a-aef3f12389eb" data-root-id="p1295" style="display: contents;"></div>
+  
+    <script type="application/json" id="a8692e59-dfa3-4c75-a246-82131b21ffce">
+      {"b7273868-c37c-4038-83ea-85c438a9cd89":{"version":"3.8.2","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"p1296","attributes":{"notifications":{"type":"object","name":"Notifications","id":"p1297"}}},"roots":[{"type":"object","name":"Column","id":"p1295","attributes":{"children":[{"type":"object","name":"Row","id":"p1293","attributes":{"children":[{"type":"object","name":"Div","id":"p1287","attributes":{"text":"\n&lt;div style=\"\n    backdrop-filter: blur(8px);\n    background: rgba(255,255,255,0.33);\n    border-radius: 2em;\n    box-shadow: 0 8px 32px 0 rgba(31,38,135,0.18);\n    border: 1.5px solid rgba(31,38,135,0.14);\n    padding: 2em 2.1em 1.6em 2.1em;\n    min-width: 220px;\n    text-align: center;\n    margin: 1.5em auto;\n\"&gt;\n    &lt;div style=\"font-size: 2.2em; font-weight: 900; color: #161a30; margin-bottom:0.28em;\"&gt;1023&lt;/div&gt;\n    &lt;div style=\"font-size: 1.02em; color: #2c365c; letter-spacing:1.2px;\"&gt;Active Users&lt;/div&gt;\n&lt;/div&gt;\n"}},{"type":"object","name":"Div","id":"p1288","attributes":{"text":"\n&lt;div style=\"\n    background: linear-gradient(120deg,#272e6a 0%,#0a1829 100%);\n    border-radius: 1.4em;\n    box-shadow: 0 2px 14px 0 #0005;\n    padding: 2em 2em 1.6em 2em;\n    min-width: 210px;\n    text-align: center;\n    margin: 1.2em auto;\n\"&gt;\n    &lt;div style=\"font-size:2.1em; font-weight:800; color:#18f0b8;\n                text-shadow: 0 0 14px #18f0b8, 0 0 2px #18f0b8;\"&gt;\n        $9,150\n    &lt;/div&gt;\n    &lt;div style=\"font-size:1em; color:#8dc1ff; margin-top:0.15em;\"&gt;\n        Monthly Revenue\n    &lt;/div&gt;\n    &lt;div style=\"margin-top:0.4em; font-size:0.95em; color:#44e462;\"&gt;\n        \u25b2 +5.2% this month\n    &lt;/div&gt;\n&lt;/div&gt;\n"}},{"type":"object","name":"Div","id":"p1289","attributes":{"text":"\n&lt;div style=\"\n    display: flex;\n    align-items: center;\n    background: #f9fafe;\n    border-left: 7px solid #845EC2;\n    border-radius: 1.1em;\n    box-shadow: 0 2px 10px #dad6ff33;\n    padding: 1.7em 1.4em;\n    min-width: 220px;\n    margin: 1em auto;\n\"&gt;\n    &lt;div style=\"flex:1; text-align: left;\"&gt;\n        &lt;div style=\"font-size: 1.4em; color: #845EC2; font-weight: 900;\"&gt;\n            72%\n        &lt;/div&gt;\n        &lt;div style=\"font-size: 1.02em; color: #262348;\"&gt;\n            System Health\n        &lt;/div&gt;\n    &lt;/div&gt;\n    &lt;div style=\"font-size: 1.4em; color: #e980fc; margin-left: 0.6em;\"&gt;\n        \u2764\n    &lt;/div&gt;\n&lt;/div&gt;\n"}}]}},{"type":"object","name":"Row","id":"p1294","attributes":{"children":[{"type":"object","name":"Div","id":"p1290","attributes":{"text":"\n&lt;div style=\"\n    background: #fff;\n    border-radius: 1.7em;\n    box-shadow: 0 3px 14px #44337a13;\n    padding: 2em 1.6em 1.4em 1.6em;\n    min-width: 220px;\n    text-align: center;\n    margin: 1em auto;\n\"&gt;\n    &lt;div style=\"font-size: 2.4em; color: #0096c7; margin-bottom: 0.15em;\"&gt;\ud83d\udcc8&lt;/div&gt;\n    &lt;div style=\"font-size: 2.05em; color: #003459; font-weight:800;\"&gt;\n        438\n    &lt;/div&gt;\n    &lt;div style=\"font-size: 1.06em; color: #2b3a67; margin-top:0.13em;\"&gt;\n        Sales Today\n    &lt;/div&gt;\n    &lt;div style=\"margin-top: 0.29em; font-size: 0.98em; color: #38b000;\"&gt;\n        \u25b2 +16% vs yesterday\n    &lt;/div&gt;\n&lt;/div&gt;\n"}},{"type":"object","name":"Div","id":"p1291","attributes":{"text":"\n&lt;style&gt;\n@keyframes upWiggle {\n  0% { transform: translateY(0) scale(1);}\n  25% { transform: translateY(-5px) scale(1.18);}\n  50% { transform: translateY(-2px) scale(1);}\n  75% { transform: translateY(-7px) scale(1.1);}\n  100% { transform: translateY(0) scale(1);}\n}\n.kpi-arrow {\n  display:inline-block;\n  color: #33c463;\n  font-size: 1.3em;\n  font-weight: bold;\n  margin-left:0.4em;\n  animation: upWiggle 1.4s infinite;\n}\n&lt;/style&gt;\n&lt;div style=\"\n    background: linear-gradient(120deg,#fafcfc 0%,#e8f7ee 100%);\n    border-radius: 1.5em;\n    box-shadow: 0 6px 22px #33c46311;\n    padding: 2.2em 2.2em 1.7em 2.2em;\n    min-width: 210px;\n    text-align: center;\n    margin: 1.2em auto;\n\"&gt;\n    &lt;div style=\"font-size:2.7em; font-weight:900; color:#1f6136;\"&gt;\n        41,230 &lt;span class=\"kpi-arrow\"&gt;\u25b2&lt;/span&gt;\n    &lt;/div&gt;\n    &lt;div style=\"font-size:1em; color:#417153; margin-top:0.23em;\"&gt;\n        Page Views\n    &lt;/div&gt;\n    &lt;div style=\"margin-top:0.41em; font-size:1.02em; color:#33c463;\"&gt;\n        +7.1% this week\n    &lt;/div&gt;\n&lt;/div&gt;\n"}},{"type":"object","name":"Div","id":"p1292","attributes":{"text":"\n&lt;style&gt;\n@keyframes gradientMove {\n  0% {background-position: 0% 50%;}\n  50% {background-position: 100% 50%;}\n  100% {background-position: 0% 50%;}\n}\n.kpi-animated-bg {\n  background: linear-gradient(270deg, #d9afd9, #97d9e1, #c3cfe2, #f6d365);\n  background-size: 800% 800%;\n  animation: gradientMove 4s ease-in-out infinite;\n}\n&lt;/style&gt;\n&lt;div class=\"kpi-animated-bg\" style=\"\n    border-radius: 1.4em;\n    box-shadow: 0 4px 16px #44337a18;\n    padding: 2.3em 2em 1.7em 2em;\n    min-width: 210px;\n    text-align: center;\n    margin: 1.2em auto;\n\"&gt;\n    &lt;div style=\"font-size:2.2em; font-weight:800; color:#233053;\"&gt;5,620&lt;/div&gt;\n    &lt;div style=\"font-size:1em; color:#41346b; margin-top:0.14em;\"&gt;\n        App Downloads\n    &lt;/div&gt;\n    &lt;div style=\"font-size:0.97em; color:#28648a; margin-top:0.37em;\"&gt;\n        \u25b2 +12% this month\n    &lt;/div&gt;\n&lt;/div&gt;\n"}}]}}]}}]}}
+    </script>
+    <script type="text/javascript">
+      (function() {
+        const fn = function() {
+          Bokeh.safely(function() {
+            (function(root) {
+              function embed_document(root) {
+              const docs_json = document.getElementById('a8692e59-dfa3-4c75-a246-82131b21ffce').textContent;
+              const render_items = [{"docid":"b7273868-c37c-4038-83ea-85c438a9cd89","roots":{"p1295":"d7ea3431-c82b-46c8-a19a-aef3f12389eb"},"root_ids":["p1295"]}];
+              root.Bokeh.embed.embed_items(docs_json, render_items);
+              }
+              if (root.Bokeh !== undefined) {
+                embed_document(root);
+              } else {
+                let attempts = 0;
+                const timer = setInterval(function(root) {
+                  if (root.Bokeh !== undefined) {
+                    clearInterval(timer);
+                    embed_document(root);
+                  } else {
+                    attempts++;
+                    if (attempts > 100) {
+                      clearInterval(timer);
+                      console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                    }
+                  }
+                }, 10, root)
+              }
+            })(window);
+          });
+        };
+        if (document.readyState != "loading") fn();
+        else document.addEventListener("DOMContentLoaded", fn);
+      })();
+    </script>
+  </body>
+</html>

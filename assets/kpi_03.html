@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Bokeh Plot</title>
+    <style>
+      html, body {
+        box-sizing: border-box;
+        display: flow-root;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-3.8.2.min.js"></script>
+<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.8.2.min.js"></script>
+<script type="text/javascript">
+Bokeh.set_log_level("info");
+</script>
+  </head>
+  <body>
+    <div id="c6cccf9f-28b6-48a3-8488-cd886a2182b0" data-root-id="p1459" style="display: contents;"></div>
+  
+    <script type="application/json" id="d6300329-5314-4fe2-95bb-b7935b9587e3">
+      {"3fc63720-5f54-4afa-92b2-306a7a0af5ad":{"version":"3.8.2","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"p1460","attributes":{"notifications":{"type":"object","name":"Notifications","id":"p1461"}}},"roots":[{"type":"object","name":"Div","id":"p1459","attributes":{"text":"\n&lt;style&gt;\n.kpi-card-hover {\n  transition: transform 0.22s cubic-bezier(.4,1.4,.5,1), box-shadow 0.22s;\n  box-shadow: 0 3px 14px #44337a13;\n}\n.kpi-card-hover:hover {\n  transform: translateY(-13px) scale(1.032) rotateZ(-0.5deg);\n  box-shadow: 0 14px 40px #38b00044, 0 1px 6px #a2e8dd11;\n  z-index: 3;\n}\n&lt;/style&gt;\n&lt;div class=\"kpi-card-hover\" style=\"\n    background: #fff;\n    border-radius: 1.4em;\n    padding: 2em 1.4em 1.25em 1.4em;\n    min-width: 230px;\n    text-align: center;\n    margin: 1em auto;\n    cursor: pointer;\n\"&gt;\n    &lt;div style=\"font-size:2.15em; color:#009688; font-weight:800;\"&gt;\n        83%\n    &lt;/div&gt;\n    &lt;div style=\"font-size:1.08em; color:#49757e; margin-top:0.1em;\"&gt;\n        Project Completion\n    &lt;/div&gt;\n    &lt;div style=\"margin-top:1.1em; margin-bottom:0.5em;\"&gt;\n        &lt;div style=\"height:14px; width:85%; margin:0 auto; background:#e0f2f1; border-radius:9px; overflow:hidden;\"&gt;\n            &lt;div style=\"\n                height:100%; width:83%; background:linear-gradient(90deg, #5ee7df 0%, #b490ca 100%);\n                border-radius:9px 0 0 9px; transition: width 1s;\"&gt;\n            &lt;/div&gt;\n        &lt;/div&gt;\n    &lt;/div&gt;\n    &lt;div style=\"font-size:0.98em; color:#009688;\"&gt;\n        Keep it up!\n    &lt;/div&gt;\n&lt;/div&gt;\n"}}]}}
+    </script>
+    <script type="text/javascript">
+      (function() {
+        const fn = function() {
+          Bokeh.safely(function() {
+            (function(root) {
+              function embed_document(root) {
+              const docs_json = document.getElementById('d6300329-5314-4fe2-95bb-b7935b9587e3').textContent;
+              const render_items = [{"docid":"3fc63720-5f54-4afa-92b2-306a7a0af5ad","roots":{"p1459":"c6cccf9f-28b6-48a3-8488-cd886a2182b0"},"root_ids":["p1459"]}];
+              root.Bokeh.embed.embed_items(docs_json, render_items);
+              }
+              if (root.Bokeh !== undefined) {
+                embed_document(root);
+              } else {
+                let attempts = 0;
+                const timer = setInterval(function(root) {
+                  if (root.Bokeh !== undefined) {
+                    clearInterval(timer);
+                    embed_document(root);
+                  } else {
+                    attempts++;
+                    if (attempts > 100) {
+                      clearInterval(timer);
+                      console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                    }
+                  }
+                }, 10, root)
+              }
+            })(window);
+          });
+        };
+        if (document.readyState != "loading") fn();
+        else document.addEventListener("DOMContentLoaded", fn);
+      })();
+    </script>
+  </body>
+</html>

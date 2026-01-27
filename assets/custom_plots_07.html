@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Bokeh Plot</title>
+    <style>
+      html, body {
+        box-sizing: border-box;
+        display: flow-root;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-3.8.2.min.js"></script>
+<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.8.2.min.js"></script>
+<script type="text/javascript">
+Bokeh.set_log_level("info");
+</script>
+  </head>
+  <body>
+    <div id="e61aee2b-6a43-4f86-83bf-28cf6420a7b1" data-root-id="p1795" style="display: contents;"></div>
+  
+    <script type="application/json" id="a1f9a3d3-5191-4720-aefe-33faa4377f89">
+      {"aea194dd-ee00-4f6e-8d1f-b0520bec1f3b":{"version":"3.8.2","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"p1796","attributes":{"notifications":{"type":"object","name":"Notifications","id":"p1797"}}},"roots":[{"type":"object","name":"Div","id":"p1795","attributes":{"styles":{"type":"map","entries":[["width","420px"],["background-color","black"],["padding","30px"],["border-radius","22px"],["margin","28px auto"]]},"stylesheets":[{"type":"object","name":"InlineStyleSheet","id":"p1794","attributes":{"css":"\n:host {\n    position: absolute;\n    background: #21233a;\n    color: #fff;\n    border-radius: 12px;\n    padding: 18px 28px;\n    text-align: center;\n    overflow: hidden;\n    box-shadow: 0 6px 10px rgba(197, 153, 10, 0.2);\n                                   left: 2%;\n}\n:host::after {\n    content: '';\n    position: absolute;\n    top: 0; left: -80%; width: 200%; height: 100%;\n    background: linear-gradient(120deg, transparent 40%, rgba(255, 255, 255, 0.355) 50%, transparent 60%);\n    animation: shimmer 2.2s infinite;\n    pointer-events: none;\n    border-radius: inherit;\n}\n@keyframes shimmer {\n    0%   { left: -80%; }\n    100% { left: 100%; }\n}\n"}}],"text":"\n    &lt;img src=\"https://static.bokeh.org/branding/icons/bokeh-icon@5x.png\" alt=\"Bokeh logo\" style=\"width:120px; display:block; margin:auto; margin-bottom:20px;\"&gt;\n    &lt;span style=\"display:block;color:deepskyblue;font-size:68px;font-weight:bold;letter-spacing:2px;\"&gt;Bokeh&lt;/span&gt;\n    &lt;span style=\"display:block;color:orange;font-size:30px;margin-top:-18px;\"&gt;&lt;i&gt;Rocks&lt;/i&gt;&lt;/span&gt;\n    "}}]}}
+    </script>
+    <script type="text/javascript">
+      (function() {
+        const fn = function() {
+          Bokeh.safely(function() {
+            (function(root) {
+              function embed_document(root) {
+              const docs_json = document.getElementById('a1f9a3d3-5191-4720-aefe-33faa4377f89').textContent;
+              const render_items = [{"docid":"aea194dd-ee00-4f6e-8d1f-b0520bec1f3b","roots":{"p1795":"e61aee2b-6a43-4f86-83bf-28cf6420a7b1"},"root_ids":["p1795"]}];
+              root.Bokeh.embed.embed_items(docs_json, render_items);
+              }
+              if (root.Bokeh !== undefined) {
+                embed_document(root);
+              } else {
+                let attempts = 0;
+                const timer = setInterval(function(root) {
+                  if (root.Bokeh !== undefined) {
+                    clearInterval(timer);
+                    embed_document(root);
+                  } else {
+                    attempts++;
+                    if (attempts > 100) {
+                      clearInterval(timer);
+                      console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                    }
+                  }
+                }, 10, root)
+              }
+            })(window);
+          });
+        };
+        if (document.readyState != "loading") fn();
+        else document.addEventListener("DOMContentLoaded", fn);
+      })();
+    </script>
+  </body>
+</html>

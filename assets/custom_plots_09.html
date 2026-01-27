@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Bokeh Plot</title>
+    <style>
+      html, body {
+        box-sizing: border-box;
+        display: flow-root;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-3.8.2.min.js"></script>
+<script type="text/javascript">
+Bokeh.set_log_level("info");
+</script>
+  </head>
+  <body>
+    <div id="e95d2fa7-36cb-4c21-a761-75fdf49abfd9" data-root-id="p1171" style="display: contents;"></div>
+  
+    <script type="application/json" id="c737ca9b-7310-4385-9c75-79f4aae48b59">
+      {"c69b300e-f339-45c2-8bda-5857827a2128":{"version":"3.8.2","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"p1172","attributes":{"notifications":{"type":"object","name":"Notifications","id":"p1173"}}},"roots":[{"type":"object","name":"Column","id":"p1171","attributes":{"styles":{"type":"map","entries":[["width","640px"],["height","470px"],["margin","10 auto"]]},"stylesheets":[{"type":"object","name":"InlineStyleSheet","id":"p1126","attributes":{"css":"\n:host {\n    position: absolute;\n    background: #444444;\n    border-radius: 20px;\n    padding: 18px;\n    margin: 40px auto;\n    box-shadow:\n        0 0 38px 10px rgba(255,70,0,0.46),\n        0 0 70px 18px rgba(255,200,40,0.12),\n        0 0 26px 5px rgba(255,235,90,0.22);\n    width: 440px;\n    height: 270px;\n    box-sizing: border-box;\n    z-index: 0;\n    animation: pulse-shadow 2.2s infinite alternate;\n    left: 2%;\n}\n\n@keyframes pulse-shadow {\n    0% {\n        box-shadow:\n            0 0 16px 3px rgba(230, 70, 10, 0.90),\n            0 0 32px 8px rgba(255, 185, 25, 0.60),\n            0 0 10px 1px rgba(255, 240, 170, 0.82);\n    }\n    30% {\n        box-shadow:\n            0 0 32px 10px rgba(255, 130, 10, 0.82),\n            0 0 44px 14px rgba(252, 200, 40, 0.40),\n            0 0 22px 3px rgba(255, 235, 120, 0.62);\n    }\n    50% {\n        box-shadow:\n            0 0 42px 12px rgba(239, 110, 30, 0.98),\n            0 0 70px 20px rgba(255, 208, 50, 0.23),\n            0 0 32px 6px rgba(255, 245, 100, 0.79);\n    }\n    70% {\n        box-shadow:\n            0 0 60px 14px rgba(255, 162, 12, 0.83),\n            0 0 90px 32px rgba(254, 200, 60, 0.22),\n            0 0 38px 7px rgba(255, 246, 143, 0.61);\n    }\n    100% {\n        box-shadow:\n            0 0 80px 22px rgba(255, 80, 0, 0.78),\n            0 0 120px 38px rgba(255, 220, 70, 0.15),\n            0 0 60px 12px rgba(255, 248, 192, 0.53);\n    }\n}\n"}}],"children":[{"type":"object","name":"Figure","id":"p1127","attributes":{"x_range":{"type":"object","name":"DataRange1d","id":"p1128"},"y_range":{"type":"object","name":"DataRange1d","id":"p1129"},"x_scale":{"type":"object","name":"LinearScale","id":"p1137"},"y_scale":{"type":"object","name":"LinearScale","id":"p1138"},"title":{"type":"object","name":"Title","id":"p1130","attributes":{"text":"Pulsing Fire Glow Shadow"}},"renderers":[{"type":"object","name":"GlyphRenderer","id":"p1168","attributes":{"data_source":{"type":"object","name":"ColumnDataSource","id":"p1162","attributes":{"selected":{"type":"object","name":"Selection","id":"p1163","attributes":{"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1164"},"data":{"type":"map","entries":[["x",[1,2,3,4]],["y",[2,4,3,6]]]}}},"view":{"type":"object","name":"CDSView","id":"p1169","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1170"}}},"glyph":{"type":"object","name":"Scatter","id":"p1165","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"size":{"type":"value","value":14},"line_color":{"type":"value","value":"deepskyblue"},"fill_color":{"type":"value","value":"deepskyblue"},"hatch_color":{"type":"value","value":"deepskyblue"}}},"nonselection_glyph":{"type":"object","name":"Scatter","id":"p1166","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"size":{"type":"value","value":14},"line_color":{"type":"value","value":"deepskyblue"},"line_alpha":{"type":"value","value":0.1},"fill_color":{"type":"value","value":"deepskyblue"},"fill_alpha":{"type":"value","value":0.1},"hatch_color":{"type":"value","value":"deepskyblue"},"hatch_alpha":{"type":"value","value":0.1}}},"muted_glyph":{"type":"object","name":"Scatter","id":"p1167","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"size":{"type":"value","value":14},"line_color":{"type":"value","value":"deepskyblue"},"line_alpha":{"type":"value","value":0.2},"fill_color":{"type":"value","value":"deepskyblue"},"fill_alpha":{"type":"value","value":0.2},"hatch_color":{"type":"value","value":"deepskyblue"},"hatch_alpha":{"type":"value","value":0.2}}}}}],"toolbar":{"type":"object","name":"Toolbar","id":"p1136","attributes":{"tools":[{"type":"object","name":"PanTool","id":"p1149"},{"type":"object","name":"WheelZoomTool","id":"p1150","attributes":{"renderers":"auto"}},{"type":"object","name":"BoxZoomTool","id":"p1151","attributes":{"dimensions":"both","overlay":{"type":"object","name":"BoxAnnotation","id":"p1152","attributes":{"syncable":false,"line_color":"black","line_alpha":1.0,"line_width":2,"line_dash":[4,4],"fill_color":"lightgrey","fill_alpha":0.5,"level":"overlay","visible":false,"left":{"type":"number","value":"nan"},"right":{"type":"number","value":"nan"},"top":{"type":"number","value":"nan"},"bottom":{"type":"number","value":"nan"},"left_units":"canvas","right_units":"canvas","top_units":"canvas","bottom_units":"canvas","handles":{"type":"object","name":"BoxInteractionHandles","id":"p1158","attributes":{"all":{"type":"object","name":"AreaVisuals","id":"p1157","attributes":{"fill_color":"white","hover_fill_color":"lightgray"}}}}}}}},{"type":"object","name":"SaveTool","id":"p1159"},{"type":"object","name":"ResetTool","id":"p1160"},{"type":"object","name":"HelpTool","id":"p1161"}]}},"left":[{"type":"object","name":"LinearAxis","id":"p1144","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1145","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1146"},"major_label_policy":{"type":"object","name":"AllLabels","id":"p1147"}}}],"below":[{"type":"object","name":"LinearAxis","id":"p1139","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1140","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1141"},"major_label_policy":{"type":"object","name":"AllLabels","id":"p1142"}}}],"center":[{"type":"object","name":"Grid","id":"p1143","attributes":{"axis":{"id":"p1139"}}},{"type":"object","name":"Grid","id":"p1148","attributes":{"dimension":1,"axis":{"id":"p1144"}}}],"background_fill_color":"#444444","border_fill_color":"#444444"}}]}}]}}
+    </script>
+    <script type="text/javascript">
+      (function() {
+        const fn = function() {
+          Bokeh.safely(function() {
+            (function(root) {
+              function embed_document(root) {
+              const docs_json = document.getElementById('c737ca9b-7310-4385-9c75-79f4aae48b59').textContent;
+              const render_items = [{"docid":"c69b300e-f339-45c2-8bda-5857827a2128","roots":{"p1171":"e95d2fa7-36cb-4c21-a761-75fdf49abfd9"},"root_ids":["p1171"]}];
+              root.Bokeh.embed.embed_items(docs_json, render_items);
+              }
+              if (root.Bokeh !== undefined) {
+                embed_document(root);
+              } else {
+                let attempts = 0;
+                const timer = setInterval(function(root) {
+                  if (root.Bokeh !== undefined) {
+                    clearInterval(timer);
+                    embed_document(root);
+                  } else {
+                    attempts++;
+                    if (attempts > 100) {
+                      clearInterval(timer);
+                      console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                    }
+                  }
+                }, 10, root)
+              }
+            })(window);
+          });
+        };
+        if (document.readyState != "loading") fn();
+        else document.addEventListener("DOMContentLoaded", fn);
+      })();
+    </script>
+  </body>
+</html>
