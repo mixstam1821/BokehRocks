@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bokeh Rocks - Interactive Visualization Gallery</title>
+    <title>BokehRocks - Awesome Bokeh Gallery</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -140,7 +140,7 @@
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                     <i class="fas fa-chart-line text-3xl gradient-text"></i>
-                    <h1 class="text-2xl font-bold gradient-text">Bokeh Rocks</h1>
+                    <h1 class="text-2xl font-bold gradient-text">BokehRocks</h1>
                 </div>
                 
                 <div class="flex items-center space-x-6">
@@ -277,6 +277,9 @@
 <button onclick="filterCategory('data-tables'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="data-tables">
     <i class="fas fa-paint-brush mr-3"></i>data-tables
 </button>
+<button onclick="filterCategory('bokeh_rocks'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="bokeh_rocks">
+    <i class="fas fa-paint-brush mr-3"></i>bokeh_rocks.py
+</button>
 <button onclick="filterCategory('interactive-charts'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="interactive-charts">
     <i class="fas fa-hand-pointer mr-3"></i>Interactive Charts
 </button>
@@ -398,7 +401,9 @@
 <button onclick="filterCategory('data-tables'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="data-tables">
     <i class="fas fa-paint-brush mr-3"></i>data-tables
 </button>
-
+<button onclick="filterCategory('bokeh_rocks'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="bokeh_rocks">
+    <i class="fas fa-paint-brush mr-3"></i>bokeh_rocks.py
+</button>
 <button onclick="filterCategory('interactive-charts'); toggleMobileMenu();" class="category-item w-full text-left px-4 py-3 rounded-lg transition" data-category="interactive-charts">
     <i class="fas fa-hand-pointer mr-3"></i>Interactive Charts
 </button>
@@ -2770,7 +2775,15 @@ id: 'box-plot7',
     preview: 'server_apps_07.png'
 },
 
-
+{
+    id: 'bokeh_rocks',
+    title: 'bokeh_rocks.py helper module',
+    category: 'bokeh_rocks',
+    description: ' ',
+    htmlFile: 'bokeh_rocks.py',
+    codeFile: 'bokeh_rocks.py',
+    preview: 'bokeh_rocks.py'
+}
         ];
 
         let currentTheme = 'light';
